@@ -1,17 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@/components/atoms/Button";
 import ColorSwatch from "@/components/molecules/ColorSwatch";
 import PriceDisplay from "@/components/molecules/PriceDisplay";
-
+import StarRating from "@/components/molecules/StarRating";
+import { reviewService } from "@/services/api/reviewService";
 const ProductCard = ({ product, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [reviewStats, setReviewStats] = useState(null);
   
-const handleCustomizeClick = (e) => {
+  useEffect(() => {
+    // Load review stats for the product
+    const loadReviewStats = () => {
+      const stats = reviewService.getReviewStats(product.Id);
+      setReviewStats(stats);
+    };
+    
+    loadReviewStats();
+  }, [product.Id]);
+
+  const handleCustomizeClick = (e) => {
     e.stopPropagation();
     // Navigate to Custom Studio with product
     window.location.href = '/custom-studio';
   };
-
   return (
 <div 
       onClick={onClick}
@@ -63,13 +74,23 @@ const handleCustomizeClick = (e) => {
         )}
       </div>
       
-      <div className="p-4 space-y-3">
+<div className="p-4 space-y-3">
         <div>
           <h3 className="font-semibold text-gray-900 text-lg">{product.name}</h3>
           <p className="text-sm text-secondary">{product.style}</p>
         </div>
         
-        <PriceDisplay price={product.basePrice} className="text-sm" />
+        <div className="flex items-center justify-between">
+          <PriceDisplay price={product.basePrice} className="text-sm" />
+          {reviewStats && reviewStats.totalReviews > 0 && (
+            <div className="flex items-center space-x-1">
+              <StarRating rating={reviewStats.averageRating} size="xs" />
+              <span className="text-xs text-gray-600">
+                ({reviewStats.totalReviews})
+              </span>
+            </div>
+          )}
+        </div>
         
         <div className="flex space-x-2">
           {product.colors.slice(0, 4).map((color, index) => (

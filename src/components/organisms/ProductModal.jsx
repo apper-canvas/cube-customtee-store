@@ -6,6 +6,7 @@ import SizeSelector from "@/components/molecules/SizeSelector";
 import PriceDisplay from "@/components/molecules/PriceDisplay";
 import ColorSwatch from "@/components/molecules/ColorSwatch";
 import Button from "@/components/atoms/Button";
+import ReviewSection from "@/components/organisms/ReviewSection";
 import { cn } from "@/utils/cn";
 
 const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
@@ -130,7 +131,9 @@ const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
               </div>
 
               {/* Details Section */}
-<div className="lg:w-1/2 p-6 space-y-6">
+<div className="flex flex-col overflow-y-auto">
+              {/* Main Product Details */}
+              <div className="lg:w-1/2 p-6 space-y-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
                   <p className="text-secondary mt-1">{product.style}</p>
@@ -237,6 +240,16 @@ const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
                   </div>
                 </div>
               </div>
+
+              {/* Reviews Section */}
+              <div className="border-t border-gray-200 p-6">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Customer Reviews</h3>
+                  <p className="text-gray-600">See what other customers are saying about this product</p>
+                </div>
+                <ReviewSection product={product} />
+              </div>
+            </div>
             </div>
           </motion.div>
         </div>

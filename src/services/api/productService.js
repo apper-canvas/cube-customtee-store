@@ -42,9 +42,9 @@ export const productService = {
     await delay(300);
     const index = productData.findIndex(p => p.Id === id);
     if (index === -1) {
-      throw new Error("Product not found");
-    }
-const deleted = productData.splice(index, 1)[0];
+throw new Error("Product not found");
+}
+    const deleted = productData.splice(index, 1)[0];
     return { ...deleted };
   },
 
@@ -147,7 +147,26 @@ const deleted = productData.splice(index, 1)[0];
     }
     
     localStorage.setItem('designShares', JSON.stringify(shares));
+localStorage.setItem('designShares', JSON.stringify(shares));
     
     return { ...shares[shareIndex] };
+  },
+
+  // Get product with review stats
+  async getByIdWithReviews(id) {
+    await delay(200);
+    const product = productData.find(p => p.Id === id);
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    // Import review service dynamically to avoid circular dependency
+    const { reviewService } = await import("@/services/api/reviewService");
+    const reviewStats = reviewService.getReviewStats(id);
+
+    return { 
+      ...product,
+reviewStats
+    };
   }
 };
