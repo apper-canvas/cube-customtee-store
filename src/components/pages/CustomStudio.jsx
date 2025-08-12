@@ -210,16 +210,17 @@ const handleImageUpload = (event) => {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     });
-    setDraggedElement(element.id);
+setDraggedElement(element.id);
     
-    setDesignElements(prev => 
-      prev.map(el => 
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: prev[activeDesignArea].map(el => 
         el.id === element.id 
           ? { ...el, isDragging: true }
           : el
       )
-    );
-  }, []);
+    }));
+  }, [activeDesignArea]);
 
 const handleMouseMove = useCallback((e) => {
     if (!draggedElement) return;
@@ -1086,7 +1087,6 @@ return (
             </div>
           </div>
 )}
-        </div>
       </div>
     </div>
     </>
