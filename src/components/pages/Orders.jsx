@@ -228,7 +228,7 @@ default:
                     <ApperIcon name="RotateCcw" className="w-4 h-4" />
                     Reorder
                   </Button>
-                  {order.status === 'Shipped' && (
+{order.status === 'Shipped' && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -236,6 +236,16 @@ default:
                     >
                       <ApperIcon name="Truck" className="w-4 h-4" />
                       Track
+                    </Button>
+                  )}
+                  {order.status === 'Delivered' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 text-green-600 border-green-200 hover:bg-green-50"
+                    >
+                      <ApperIcon name="Star" className="w-4 h-4" />
+                      Request Review
                     </Button>
                   )}
                 </div>

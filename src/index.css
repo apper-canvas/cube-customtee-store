@@ -220,3 +220,119 @@ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transform: scale(0.95);
   }
 }
+
+/* Review Incentive System Styles */
+.photo-incentive-banner {
+  background: linear-gradient(135deg, #10b981, #059669);
+  animation: incentivePulse 3s infinite;
+}
+
+@keyframes incentivePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+}
+
+.discount-code-display {
+  background: linear-gradient(135deg, #059669, #047857);
+  animation: discountReveal 0.6s ease-out;
+}
+
+@keyframes discountReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.business-response-card {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  border-left: 4px solid #3b82f6;
+  animation: responseSlideIn 0.4s ease-out;
+}
+
+@keyframes responseSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.verified-photo-badge {
+  background: linear-gradient(135deg, #10b981, #059669);
+  animation: verifiedBadgeGlow 2s infinite alternate;
+}
+
+@keyframes verifiedBadgeGlow {
+  0% {
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+  }
+}
+
+.email-prompt-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  animation: emailSentConfirm 0.5s ease-out;
+}
+
+@keyframes emailSentConfirm {
+  0% {
+    transform: scale(0.9) translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Review submission states */
+.photo-upload-zone {
+  transition: all 0.3s ease;
+  border-color: #d1d5db;
+}
+
+.photo-upload-zone:hover {
+  border-color: #10b981;
+  background-color: #f0fdf4;
+}
+
+.photo-upload-zone.active {
+  border-color: #059669;
+  background-color: #dcfce7;
+}
+
+.review-submission-success {
+  animation: submissionSuccess 0.8s ease-out;
+}
+
+@keyframes submissionSuccess {
+  0% {
+    transform: scale(1);
+    background-color: #10b981;
+  }
+  50% {
+    transform: scale(1.05);
+    background-color: #059669;
+  }
+  100% {
+    transform: scale(1);
+    background-color: #10b981;
+  }
+}

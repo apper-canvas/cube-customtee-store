@@ -21,7 +21,7 @@ export const reviewService = {
     return { ...review };
   },
 
-  async create(review) {
+async create(review) {
     await delay(400);
     const maxId = Math.max(...reviewData.map(r => r.Id), 0);
     const newReview = {
@@ -29,10 +29,27 @@ export const reviewService = {
       Id: maxId + 1,
       reviewDate: new Date().toISOString(),
       helpfulVotes: { yes: 0, no: 0 },
-      verified: true
+      verified: true,
+      hasPhotoDiscount: review.photos && review.photos.length > 0
     };
     reviewData.push(newReview);
     return { ...newReview };
+  },
+
+  async addBusinessResponse(reviewId, response) {
+    await delay(300);
+    const review = reviewData.find(r => r.Id === reviewId);
+    if (!review) {
+      throw new Error('Review not found');
+    }
+    
+    review.businessResponse = {
+      message: response,
+      date: new Date().toISOString(),
+      businessName: 'CustomTee Store'
+    };
+    
+    return { ...review };
   },
 
   async update(id, updates) {

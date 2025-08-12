@@ -81,8 +81,15 @@ const ReviewCard = ({ review, onVoteUpdate }) => {
       </div>
 
       {/* Photos */}
-      {review.photos.length > 0 && (
+{review.photos.length > 0 && (
         <div className="space-y-3">
+          <div className="flex items-center gap-2 mb-2">
+            <ApperIcon name="Camera" className="w-4 h-4 text-green-600" />
+            <span className="text-sm font-medium text-green-600">Customer Photos</span>
+            <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+              Verified with Purchase
+            </div>
+          </div>
           <div className="grid grid-cols-3 gap-2">
             {displayPhotos.map((photo, index) => (
               <div key={index} className="relative group cursor-pointer">
@@ -116,6 +123,26 @@ const ReviewCard = ({ review, onVoteUpdate }) => {
               Show {review.photos.length - 3} more photos
             </Button>
           )}
+        </div>
+      )}
+
+      {/* Business Response Section */}
+      {review.businessResponse && (
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="bg-blue-50 rounded-lg p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <ApperIcon name="Store" className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-blue-900 text-sm">CustomTee Store</p>
+                <p className="text-xs text-blue-700">{formatDate(review.businessResponse.date)}</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {review.businessResponse.message}
+            </p>
+          </div>
         </div>
       )}
 

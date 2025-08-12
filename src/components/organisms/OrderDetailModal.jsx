@@ -99,11 +99,21 @@ const handleReorder = async () => {
     }
   };
 
-  const handleTrackPackage = () => {
+const handleTrackPackage = () => {
     if (order.tracking?.url) {
       window.open(order.tracking.url, '_blank');
     } else {
       toast.info('Tracking information will be available once your order ships.');
+    }
+  };
+
+  const handleRequestReview = async () => {
+    try {
+      const { emailService } = await import('@/services/api/emailService');
+      await emailService.sendReviewRequest(order.orderNumber);
+      toast.success('Review request sent! Check your email for a special photo discount offer.');
+    } catch (error) {
+      toast.error('Failed to send review request');
     }
   };
 
@@ -371,7 +381,7 @@ const handleReorder = async () => {
               </div>
             </div>
 
-            {/* Footer Actions */}
+{/* Footer Actions */}
             <div className="p-6 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row gap-3 justify-between">
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -383,14 +393,25 @@ const handleReorder = async () => {
                     <ApperIcon name="RotateCcw" size={16} className="mr-2" />
                     {isReordering ? 'Adding...' : 'Reorder Items'}
                   </Button>
-                  <Button
-                    onClick={handleTrackPackage}
-                    variant="outline"
-                    className="flex-1 sm:flex-initial"
-                  >
-                    <ApperIcon name="Package" size={16} className="mr-2" />
-                    Track Package
-                  </Button>
+                  {order.status === 'Delivered' ? (
+                    <Button
+                      onClick={handleRequestReview}
+                      variant="outline"
+                      className="flex-1 sm:flex-initial bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                    >
+                      <ApperIcon name="Star" size={16} className="mr-2" />
+                      Request Review
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleTrackPackage}
+                      variant="outline"
+                      className="flex-1 sm:flex-initial"
+                    >
+                      <ApperIcon name="Package" size={16} className="mr-2" />
+                      Track Package
+                    </Button>
+                  )}
                 </div>
                 <Button
                   onClick={handleContactSupport}
