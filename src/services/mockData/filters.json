@@ -15,6 +15,16 @@
     { "name": "Brown", "value": "#92400E" }
   ],
   "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+  "designTypes": ["Text-Only", "Graphic", "Combo"],
+  "colorSchemes": [
+    "Monochrome",
+    "Complementary", 
+    "Triadic",
+    "Analogous",
+    "Split-Complementary",
+    "Tetradic"
+  ],
+  "complexityLevels": ["Simple", "Moderate", "Complex", "Advanced"],
   "priceRange": {
     "min": 15,
     "max": 35

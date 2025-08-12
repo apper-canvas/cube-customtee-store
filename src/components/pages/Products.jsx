@@ -14,10 +14,13 @@ const Products = ({ onAddToCart }) => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [filters, setFilters] = useState(null);
-  const [selectedFilters, setSelectedFilters] = useState({
+const [selectedFilters, setSelectedFilters] = useState({
     styles: [],
     colors: [],
     sizes: [],
+    designTypes: [],
+    colorSchemes: [],
+    complexityLevels: [],
     priceRange: { min: 15, max: 35 }
   });
 const [searchQuery, setSearchQuery] = useState("");
@@ -101,6 +104,27 @@ const applyFilters = () => {
     if (selectedFilters.styles.length > 0) {
       filtered = filtered.filter(product =>
         selectedFilters.styles.includes(product.style)
+      );
+    }
+
+    // Apply design type filters
+    if (selectedFilters.designTypes.length > 0) {
+      filtered = filtered.filter(product =>
+        selectedFilters.designTypes.includes(product.designType || 'Text-Only')
+      );
+    }
+
+    // Apply color scheme filters
+    if (selectedFilters.colorSchemes.length > 0) {
+      filtered = filtered.filter(product =>
+        selectedFilters.colorSchemes.includes(product.colorScheme || 'Monochrome')
+      );
+    }
+
+    // Apply complexity level filters
+    if (selectedFilters.complexityLevels.length > 0) {
+      filtered = filtered.filter(product =>
+        selectedFilters.complexityLevels.includes(product.complexityLevel || 'Simple')
       );
     }
 

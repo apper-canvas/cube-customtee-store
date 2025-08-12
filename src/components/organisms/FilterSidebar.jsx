@@ -18,7 +18,7 @@ const FilterSidebar = ({
     setIsSizeGuideOpen(true);
     toast.info("📏 Size guide opened - find your perfect fit!");
   };
-  const handleStyleFilter = (style) => {
+const handleStyleFilter = (style) => {
     const newStyles = selectedFilters.styles.includes(style)
       ? selectedFilters.styles.filter(s => s !== style)
       : [...selectedFilters.styles, style];
@@ -37,6 +37,27 @@ const FilterSidebar = ({
       ? selectedFilters.sizes.filter(s => s !== size)
       : [...selectedFilters.sizes, size];
     onFilterChange({ ...selectedFilters, sizes: newSizes });
+  };
+
+  const handleDesignTypeFilter = (designType) => {
+    const newDesignTypes = selectedFilters.designTypes.includes(designType)
+      ? selectedFilters.designTypes.filter(d => d !== designType)
+      : [...selectedFilters.designTypes, designType];
+    onFilterChange({ ...selectedFilters, designTypes: newDesignTypes });
+  };
+
+  const handleColorSchemeFilter = (colorScheme) => {
+    const newColorSchemes = selectedFilters.colorSchemes.includes(colorScheme)
+      ? selectedFilters.colorSchemes.filter(c => c !== colorScheme)
+      : [...selectedFilters.colorSchemes, colorScheme];
+    onFilterChange({ ...selectedFilters, colorSchemes: newColorSchemes });
+  };
+
+  const handleComplexityLevelFilter = (complexityLevel) => {
+    const newComplexityLevels = selectedFilters.complexityLevels.includes(complexityLevel)
+      ? selectedFilters.complexityLevels.filter(c => c !== complexityLevel)
+      : [...selectedFilters.complexityLevels, complexityLevel];
+    onFilterChange({ ...selectedFilters, complexityLevels: newComplexityLevels });
   };
 
   return (
@@ -134,8 +155,7 @@ const FilterSidebar = ({
                 </div>
               </div>
             </FilterSection>
-
-            {/* Price Range */}
+{/* Price Range */}
             <FilterSection title="Price Range">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -147,6 +167,57 @@ const FilterSidebar = ({
                   max="35"
                   className="w-full accent-primary"
                 />
+              </div>
+            </FilterSection>
+
+            {/* Design Type */}
+            <FilterSection title="Design Type">
+              <div className="space-y-2">
+                {filters.designTypes?.map((designType) => (
+                  <label key={designType} className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedFilters.designTypes.includes(designType)}
+                      onChange={() => handleDesignTypeFilter(designType)}
+                      className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                    />
+                    <span className="text-sm text-gray-700">{designType}</span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+
+            {/* Color Scheme */}
+            <FilterSection title="Color Scheme">
+              <div className="space-y-2">
+                {filters.colorSchemes?.map((colorScheme) => (
+                  <label key={colorScheme} className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedFilters.colorSchemes.includes(colorScheme)}
+                      onChange={() => handleColorSchemeFilter(colorScheme)}
+                      className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                    />
+                    <span className="text-sm text-gray-700">{colorScheme}</span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+
+            {/* Complexity Level */}
+            <FilterSection title="Complexity Level">
+              <div className="space-y-2">
+                {filters.complexityLevels?.map((complexityLevel) => (
+                  <label key={complexityLevel} className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedFilters.complexityLevels.includes(complexityLevel)}
+                      onChange={() => handleComplexityLevelFilter(complexityLevel)}
+                      className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                    />
+                    <span className="text-sm text-gray-700">{complexityLevel}</span>
+                  </label>
+                ))}
               </div>
             </FilterSection>
           </div>
