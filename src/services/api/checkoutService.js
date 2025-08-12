@@ -5,12 +5,29 @@ let orders = [];
 let orderId = 1;
 
 export const checkoutService = {
-  async createOrder(orderData) {
+async createOrder(orderData) {
     await delay(800);
+    
+    // Simulate payment processing
+    if (orderData.payment && orderData.payment.cardNumber) {
+      // Basic validation simulation
+      const cardNumber = orderData.payment.cardNumber.replace(/\s/g, '');
+      if (cardNumber.length < 15) {
+        throw new Error('Invalid card number');
+      }
+      if (!orderData.payment.expiryDate || !orderData.payment.cvv) {
+        throw new Error('Missing payment information');
+      }
+    }
     
     const newOrder = {
       Id: orderId++,
       ...orderData,
+      // Don't store sensitive payment data
+      payment: {
+        cardLast4: orderData.payment.cardNumber.slice(-4),
+        paymentMethod: 'Credit Card'
+      },
       orderNumber: `ORD-${String(orderId + 1000).padStart(4, '0')}`,
       status: 'confirmed',
       createdAt: new Date().toISOString(),

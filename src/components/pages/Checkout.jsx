@@ -11,7 +11,7 @@ const Checkout = ({ cartItems = [], onClearCart }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [sameAsBilling, setSameAsBilling] = useState(true);
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     email: '',
     shippingAddress: {
       firstName: '',
@@ -30,7 +30,14 @@ const Checkout = ({ cartItems = [], onClearCart }) => {
       state: '',
       zipCode: '',
       country: 'United States'
-    }
+    },
+    payment: {
+      cardNumber: '',
+      expiryDate: '',
+      cvv: '',
+      billingZip: ''
+    },
+    orderNotes: ''
   });
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -48,18 +55,63 @@ const Checkout = ({ cartItems = [], onClearCart }) => {
     }));
   };
 
-  const handleEmailChange = (value) => {
+const handleEmailChange = (value) => {
     setFormData(prev => ({
       ...prev,
       email: value
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handlePaymentChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      payment: {
+        ...prev.payment,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleOrderNotesChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      orderNotes: value
+    }));
+  };
+
+  const formatCardNumber = (value) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
+  const formatExpiry = (value) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    if (v.length >= 2) {
+      return v.substring(0, 2) + '/' + v.substring(2, 4);
+    }
+    return v;
+  };
+const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (cartItems.length === 0) {
       toast.error('Your cart is empty');
+      return;
+    }
+
+    // Validate payment fields
+    if (!formData.payment.cardNumber || !formData.payment.expiryDate || !formData.payment.cvv || !formData.payment.billingZip) {
+      toast.error('Please complete all payment fields');
       return;
     }
 
@@ -71,6 +123,8 @@ const Checkout = ({ cartItems = [], onClearCart }) => {
         items: cartItems,
         shippingAddress: formData.shippingAddress,
         billingAddress: sameAsBilling ? formData.shippingAddress : formData.billingAddress,
+        payment: formData.payment,
+        orderNotes: formData.orderNotes,
         subtotal,
         shipping,
         tax,
@@ -107,7 +161,7 @@ const Checkout = ({ cartItems = [], onClearCart }) => {
     );
   }
 
-  return (
+return (
     <div className="min-h-screen bg-background py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
@@ -119,6 +173,39 @@ const Checkout = ({ cartItems = [], onClearCart }) => {
             Continue Shopping
           </button>
           <h1 className="text-3xl font-bold text-gray-900 mt-4">Checkout</h1>
+          
+          {/* Progress Indicator */}
+          <div className="mt-8 mb-8">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="flex items-center">
+                <div className="flex items-center justify-center w-8 h-8 bg-success text-white rounded-full text-sm font-medium">
+                  ✓
+                </div>
+                <span className="ml-2 text-sm font-medium text-success">Cart</span>
+              </div>
+              <div className="w-12 h-0.5 bg-success"></div>
+              <div className="flex items-center">
+                <div className="flex items-center justify-center w-8 h-8 bg-success text-white rounded-full text-sm font-medium">
+                  ✓
+                </div>
+                <span className="ml-2 text-sm font-medium text-success">Shipping</span>
+              </div>
+              <div className="w-12 h-0.5 bg-primary"></div>
+              <div className="flex items-center">
+                <div className="flex items-center justify-center w-8 h-8 bg-primary text-white rounded-full text-sm font-medium">
+                  3
+                </div>
+                <span className="ml-2 text-sm font-medium text-primary">Payment</span>
+              </div>
+              <div className="w-12 h-0.5 bg-gray-200"></div>
+              <div className="flex items-center">
+                <div className="flex items-center justify-center w-8 h-8 bg-gray-200 text-gray-400 rounded-full text-sm font-medium">
+                  4
+                </div>
+                <span className="ml-2 text-sm text-gray-400">Complete</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -194,12 +281,11 @@ const Checkout = ({ cartItems = [], onClearCart }) => {
                   />
                 </div>
               </div>
-
-              {/* Billing Address */}
+{/* Billing Address */}
               <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-                    <ApperIcon name="CreditCard" className="w-5 h-5 mr-2 text-primary" />
+                    <ApperIcon name="MapPin" className="w-5 h-5 mr-2 text-primary" />
                     Billing Address
                   </h2>
                   <label className="flex items-center space-x-2 cursor-pointer">
@@ -261,6 +347,122 @@ const Checkout = ({ cartItems = [], onClearCart }) => {
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Payment Information */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
+                  <ApperIcon name="CreditCard" className="w-5 h-5 mr-2 text-primary" />
+                  Payment Information
+                </h2>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Card Number
+                    </label>
+                    <Input
+                      placeholder="1234 5678 9012 3456"
+                      value={formData.payment.cardNumber}
+                      onChange={(e) => handlePaymentChange('cardNumber', formatCardNumber(e.target.value))}
+                      maxLength={19}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Expiry Date
+                    </label>
+                    <Input
+                      placeholder="MM/YY"
+                      value={formData.payment.expiryDate}
+                      onChange={(e) => handlePaymentChange('expiryDate', formatExpiry(e.target.value))}
+                      maxLength={5}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      CVV
+                    </label>
+                    <Input
+                      placeholder="123"
+                      value={formData.payment.cvv}
+                      onChange={(e) => handlePaymentChange('cvv', e.target.value.replace(/\D/g, ''))}
+                      maxLength={4}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Billing ZIP Code
+                    </label>
+                    <Input
+                      placeholder="12345"
+                      value={formData.payment.billingZip}
+                      onChange={(e) => handlePaymentChange('billingZip', e.target.value)}
+                      maxLength={10}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Notes */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
+                  <ApperIcon name="MessageSquare" className="w-5 h-5 mr-2 text-primary" />
+                  Special Instructions
+                </h2>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Order Notes (Optional)
+                  </label>
+                  <textarea
+                    placeholder="Any special delivery instructions or notes about your order..."
+                    value={formData.orderNotes}
+                    onChange={(e) => handleOrderNotesChange(e.target.value)}
+                    rows={4}
+                    className="flex w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Place Order Button */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center text-lg font-semibold">
+                    <span>Order Total:</span>
+                    <span className="text-primary">${total.toFixed(2)}</span>
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-primary hover:bg-blue-700 text-white py-4 text-lg font-semibold"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <ApperIcon name="Loader2" className="w-5 h-5 mr-2 animate-spin" />
+                        Processing Order...
+                      </>
+                    ) : (
+                      <>
+                        <ApperIcon name="Lock" className="w-5 h-5 mr-2" />
+                        Place Order - ${total.toFixed(2)}
+                      </>
+                    )}
+                  </Button>
+                  
+                  <div className="flex items-center justify-center text-sm text-gray-500">
+                    <ApperIcon name="Shield" className="w-4 h-4 mr-1" />
+                    Your payment information is secure and encrypted
+                  </div>
+                </div>
               </div>
             </form>
           </div>
