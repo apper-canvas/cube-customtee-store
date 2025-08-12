@@ -17,7 +17,7 @@ const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-const addToCart = (item, sourceOrderNumber = null) => {
+const addToCart = async (item, sourceOrderNumber = null) => {
     const existingItem = cartItems.find(
       cartItem => 
         cartItem.productId === item.productId &&
@@ -41,8 +41,12 @@ const addToCart = (item, sourceOrderNumber = null) => {
 
     // Show reorder confirmation if source order provided
     if (sourceOrderNumber) {
-      const { toast } = await import('react-toastify');
-      toast.success(`Reordered from Order #${sourceOrderNumber}`);
+      try {
+        const { toast } = await import('react-toastify');
+        toast.success(`Reordered from Order #${sourceOrderNumber}`);
+      } catch (err) {
+        console.error('Failed to load toast notification:', err);
+      }
     }
   };
 
