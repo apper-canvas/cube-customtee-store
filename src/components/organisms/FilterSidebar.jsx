@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import FilterSection from "@/components/molecules/FilterSection";
 import ColorSwatch from "@/components/molecules/ColorSwatch";
+import SizeGuideModal from "@/components/organisms/SizeGuideModal";
+import ApperIcon from "@/components/ApperIcon";
 import { cn } from "@/utils/cn";
-
+import { toast } from "react-toastify";
 const FilterSidebar = ({ 
   filters, 
   selectedFilters, 
@@ -10,6 +12,12 @@ const FilterSidebar = ({
   isOpen, 
   onClose 
 }) => {
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+
+  const handleSizeGuideOpen = () => {
+    setIsSizeGuideOpen(true);
+    toast.info("📏 Size guide opened - find your perfect fit!");
+  };
   const handleStyleFilter = (style) => {
     const newStyles = selectedFilters.styles.includes(style)
       ? selectedFilters.styles.filter(s => s !== style)
@@ -95,23 +103,35 @@ const FilterSidebar = ({
               </div>
             </FilterSection>
 
-            {/* Sizes */}
+{/* Sizes */}
             <FilterSection title="Sizes">
-              <div className="grid grid-cols-3 gap-2">
-                {filters.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => handleSizeFilter(size)}
-                    className={cn(
-                      "px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200",
-                      selectedFilters.sizes.includes(size)
-                        ? "bg-primary text-white border-primary"
-                        : "bg-white text-gray-700 border-gray-200 hover:border-primary"
-                    )}
-                  >
-                    {size}
-                  </button>
-                ))}
+              <div className="space-y-3">
+                {/* Size Guide Button */}
+                <button
+                  onClick={handleSizeGuideOpen}
+                  className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-200"
+                >
+                  <ApperIcon name="Ruler" size={16} />
+                  <span>Size Guide</span>
+                </button>
+                
+                {/* Size Buttons */}
+                <div className="grid grid-cols-3 gap-2">
+                  {filters.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => handleSizeFilter(size)}
+                      className={cn(
+                        "px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200",
+                        selectedFilters.sizes.includes(size)
+                          ? "bg-primary text-white border-primary"
+                          : "bg-white text-gray-700 border-gray-200 hover:border-primary"
+                      )}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
             </FilterSection>
 
@@ -132,6 +152,11 @@ const FilterSidebar = ({
           </div>
         </div>
       </div>
+{/* Size Guide Modal */}
+      <SizeGuideModal 
+        isOpen={isSizeGuideOpen}
+        onClose={() => setIsSizeGuideOpen(false)}
+      />
     </>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ProductGrid from "@/components/organisms/ProductGrid";
 import FilterSidebar from "@/components/organisms/FilterSidebar";
 import ProductModal from "@/components/organisms/ProductModal";
+import SizeGuideModal from "@/components/organisms/SizeGuideModal";
 import Button from "@/components/atoms/Button";
 import ApperIcon from "@/components/ApperIcon";
 import { productService } from "@/services/api/productService";
@@ -124,12 +125,18 @@ const Products = ({ onAddToCart }) => {
         </div>
       </div>
 
-      {/* Product Modal */}
+{/* Product Modal */}
       <ProductModal
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddToCart={handleAddToCart}
+      />
+
+      {/* Size Guide Modal */}
+      <SizeGuideModal 
+        isOpen={false}
+        onClose={() => {}}
       />
     </div>
   );
