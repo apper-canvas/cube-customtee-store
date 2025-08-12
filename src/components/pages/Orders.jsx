@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import OrderDetailModal from "@/components/organisms/OrderDetailModal";
 import ApperIcon from "@/components/ApperIcon";
+import Loading from "@/components/ui/Loading";
+import Error from "@/components/ui/Error";
 import Button from "@/components/atoms/Button";
-
 const Orders = () => {
-  const [orders, setOrders] = React.useState([]);
+const [orders, setOrders] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
   const [activeFilter, setActiveFilter] = React.useState('All Orders');
@@ -12,6 +14,8 @@ const Orders = () => {
     start: '',
     end: ''
   });
+  const [selectedOrder, setSelectedOrder] = React.useState(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const statusFilters = ['All Orders', 'Processing', 'In Production', 'Shipped', 'Delivered'];
 
@@ -55,11 +59,20 @@ const Orders = () => {
         return 'bg-purple-100 text-purple-800';
       case 'Delivered':
         return 'bg-green-100 text-green-800';
-      default:
+default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
+  const handleViewDetails = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
   const filteredOrders = orders.filter(order => {
     const matchesStatus = activeFilter === 'All Orders' || order.status === activeFilter;
     const matchesSearch = searchTerm === '' || 
@@ -174,7 +187,7 @@ const Orders = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {filteredOrders.map(order => (
+{filteredOrders.map(order => (
             <div key={order.Id} className="bg-white rounded-xl p-6 shadow-sm card-hover">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                 <div className="mb-4 lg:mb-0">
@@ -264,11 +277,30 @@ const Orders = () => {
                     </span>
                   </div>
                 </div>
-              )}
+)}
+
+              {/* View Details Button */}
+              <div className="border-t pt-4 mt-4">
+                <Button 
+                  onClick={() => handleViewDetails(order)}
+                  variant="outline" 
+                  className="flex-1 sm:flex-none"
+                >
+                  <ApperIcon name="Eye" size={16} className="mr-2" />
+                  View Details
+                </Button>
+              </div>
             </div>
           ))}
         </div>
       )}
+      
+      {/* Order Detail Modal */}
+      <OrderDetailModal
+        order={selectedOrder}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
