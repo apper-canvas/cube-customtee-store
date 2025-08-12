@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import Button from "@/components/atoms/Button";
+import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { shippingService } from "@/services/api/shippingService";
 import ApperIcon from "@/components/ApperIcon";
 import Empty from "@/components/ui/Empty";
-import { toast } from "react-toastify";
+import Button from "@/components/atoms/Button";
+import Checkout from "@/components/pages/Checkout";
 
 const CartDrawer = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }) => {
   const navigate = useNavigate();
+  const [selectedShipping, setSelectedShipping] = useState('standard');
+  const shippingOptions = shippingService.getShippingOptions();
+  
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 50 ? 0 : 5.99;
+  const shipping = shippingService.calculateShipping(subtotal, selectedShipping);
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
   
