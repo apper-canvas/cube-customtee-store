@@ -1,21 +1,23 @@
 import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import Header from "@/components/organisms/Header";
-import PromotionalBanner from "@/components/molecules/PromotionalBanner";
 import CartDrawer from "@/components/organisms/CartDrawer";
-import Products from "@/components/pages/Products";
-import DesignGallery from "@/components/pages/DesignGallery";
-import CustomStudio from "@/components/pages/CustomStudio";
+import PromotionalBanner from "@/components/molecules/PromotionalBanner";
 import Orders from "@/components/pages/Orders";
-import Checkout from "@/components/pages/Checkout";
 import OrderConfirmation from "@/components/pages/OrderConfirmation";
+import Checkout from "@/components/pages/Checkout";
+import Products from "@/components/pages/Products";
+import CustomStudio from "@/components/pages/CustomStudio";
+import DesignGallery from "@/components/pages/DesignGallery";
+import productsData from "@/services/mockData/products.json";
+import filtersData from "@/services/mockData/filters.json";
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const addToCart = (item) => {
+const addToCart = (item, sourceOrderNumber = null) => {
     const existingItem = cartItems.find(
       cartItem => 
         cartItem.productId === item.productId &&
@@ -35,6 +37,37 @@ const App = () => {
         id: Date.now() + Math.random()
       };
       setCartItems([...cartItems, newItem]);
+    }
+
+    // Show reorder confirmation if source order provided
+    if (sourceOrderNumber) {
+      const { toast } = await import('react-toastify');
+      toast.success(`Reordered from Order #${sourceOrderNumber}`);
+    }
+  };
+
+  const handleReorder = async (orderId) => {
+    try {
+      const { checkoutService } = await import('@/services/api/checkoutService');
+      const result = await checkoutService.reorderItems(orderId);
+      const order = await checkoutService.getOrderById(orderId);
+      
+      // Add each item to cart with preserved customizations
+      result.items.forEach(item => {
+        const cartItem = {
+          productId: item.productId || Date.now() + Math.random(),
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          color: item.color || { name: 'Default', hex: '#000000' },
+          size: item.size || 'M',
+          image: item.image || '/placeholder-tshirt.jpg'
+        };
+        addToCart(cartItem, order.orderNumber);
+      });
+    } catch (err) {
+      const { toast } = await import('react-toastify');
+      toast.error('Failed to reorder items');
     }
   };
 
@@ -65,7 +98,7 @@ const App = () => {
           <Route path="/" element={<Products onAddToCart={addToCart} />} />
           <Route path="/gallery" element={<DesignGallery />} />
           <Route path="/studio" element={<CustomStudio />} />
-          <Route path="/orders" element={<Orders />} />
+<Route path="/orders" element={<Orders onReorder={handleReorder} />} />
           <Route path="/checkout" element={<Checkout cartItems={cartItems} onClearCart={() => setCartItems([])} />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
         </Routes>

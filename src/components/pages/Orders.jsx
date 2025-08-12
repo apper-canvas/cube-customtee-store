@@ -4,7 +4,7 @@ import ApperIcon from "@/components/ApperIcon";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Button from "@/components/atoms/Button";
-const Orders = () => {
+const Orders = ({ onReorder }) => {
 const [orders, setOrders] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
@@ -37,15 +37,19 @@ const [orders, setOrders] = React.useState([]);
     }
   };
 
-  const handleReorder = async (orderId) => {
-    try {
-      const { checkoutService } = await import('@/services/api/checkoutService');
-      await checkoutService.reorderItems(orderId);
-      const { toast } = await import('react-toastify');
-      toast.success('Items added to cart successfully!');
-    } catch (err) {
-      const { toast } = await import('react-toastify');
-      toast.error('Failed to reorder items');
+const handleReorder = async (orderId) => {
+    if (onReorder) {
+      await onReorder(orderId);
+    } else {
+      try {
+        const { checkoutService } = await import('@/services/api/checkoutService');
+        await checkoutService.reorderItems(orderId);
+        const { toast } = await import('react-toastify');
+        toast.success('Items added to cart successfully!');
+      } catch (err) {
+        const { toast } = await import('react-toastify');
+        toast.error('Failed to reorder items');
+      }
     }
   };
 
@@ -295,11 +299,12 @@ default:
         </div>
       )}
       
-      {/* Order Detail Modal */}
+{/* Order Detail Modal */}
       <OrderDetailModal
         order={selectedOrder}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        onReorder={handleReorder}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import Button from '@/components/atoms/Button';
 import ApperIcon from '@/components/ApperIcon';
 import { toast } from 'react-toastify';
 
-function OrderDetailModal({ order, isOpen, onClose }) {
+function OrderDetailModal({ order, isOpen, onClose, onReorder }) {
   const [isReordering, setIsReordering] = useState(false);
 
   if (!order) return null;
@@ -85,12 +85,12 @@ function OrderDetailModal({ order, isOpen, onClose }) {
     return timestampMap[stepKey];
   };
 
-  const handleReorder = async () => {
+const handleReorder = async () => {
+    if (!onReorder) return;
+    
     setIsReordering(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Items added to cart successfully!');
+      await onReorder(order.Id);
       onClose();
     } catch (error) {
       toast.error('Failed to reorder items. Please try again.');
