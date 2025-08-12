@@ -1,0 +1,302 @@
+[
+  {
+    "Id": 1,
+    "name": "Premium Cotton Crew",
+    "style": "Crew Neck",
+    "basePrice": 24.99,
+    "images": [
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "White", "value": "#FFFFFF" },
+      { "name": "Black", "value": "#000000" },
+      { "name": "Navy", "value": "#1F2937" },
+      { "name": "Gray", "value": "#6B7280" },
+      { "name": "Red", "value": "#EF4444" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "description": "Our premium cotton crew neck t-shirt is perfect for everyday wear and custom designs. Made from 100% ring-spun cotton for ultimate comfort and durability.",
+    "specifications": {
+      "material": "100% Ring-Spun Cotton",
+      "weight": "4.5 oz/sq yd",
+      "care": "Machine wash cold, tumble dry low",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 2,
+    "name": "Classic V-Neck Tee",
+    "style": "V-Neck",
+    "basePrice": 22.99,
+    "images": [
+      "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1562157873-818bc0726f68?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "White", "value": "#FFFFFF" },
+      { "name": "Black", "value": "#000000" },
+      { "name": "Charcoal", "value": "#374151" },
+      { "name": "Burgundy", "value": "#991B1B" },
+      { "name": "Forest Green", "value": "#065F46" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "description": "A timeless v-neck design that offers a flattering fit for all body types. Perfect for layering or wearing on its own with custom prints.",
+    "specifications": {
+      "material": "60% Cotton, 40% Polyester",
+      "weight": "4.2 oz/sq yd",
+      "care": "Machine wash warm, tumble dry medium",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 3,
+    "name": "Athletic Tank Top",
+    "style": "Tank Top",
+    "basePrice": 19.99,
+    "images": [
+      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "White", "value": "#FFFFFF" },
+      { "name": "Black", "value": "#000000" },
+      { "name": "Gray Heather", "value": "#9CA3AF" },
+      { "name": "Navy", "value": "#1F2937" },
+      { "name": "Royal Blue", "value": "#2563EB" }
+    ],
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "description": "Lightweight and breathable tank top perfect for workouts, summer wear, or showcasing bold custom designs.",
+    "specifications": {
+      "material": "100% Cotton",
+      "weight": "4.0 oz/sq yd",
+      "care": "Machine wash cold, tumble dry low",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 4,
+    "name": "Long Sleeve Essential",
+    "style": "Long Sleeve",
+    "basePrice": 28.99,
+    "images": [
+      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583743814966-8936f37f86cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "White", "value": "#FFFFFF" },
+      { "name": "Black", "value": "#000000" },
+      { "name": "Navy", "value": "#1F2937" },
+      { "name": "Olive", "value": "#6B7280" },
+      { "name": "Maroon", "value": "#7C2D12" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "description": "Perfect for cooler weather or layering, this long sleeve tee provides extra coverage while maintaining comfort and style.",
+    "specifications": {
+      "material": "100% Pre-Shrunk Cotton",
+      "weight": "5.2 oz/sq yd",
+      "care": "Machine wash cold, tumble dry low",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 5,
+    "name": "Vintage Crew Neck",
+    "style": "Crew Neck",
+    "basePrice": 26.99,
+    "images": [
+      "https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "Vintage White", "value": "#F9FAFB" },
+      { "name": "Heather Gray", "value": "#9CA3AF" },
+      { "name": "Charcoal", "value": "#374151" },
+      { "name": "Rust", "value": "#DC2626" },
+      { "name": "Sage Green", "value": "#10B981" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "description": "A vintage-inspired crew neck with a lived-in feel. Pre-washed for extra softness and perfect for retro-style custom prints.",
+    "specifications": {
+      "material": "100% Ring-Spun Cotton",
+      "weight": "4.8 oz/sq yd",
+      "care": "Machine wash cold, tumble dry low",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 6,
+    "name": "Soft V-Neck Premium",
+    "style": "V-Neck",
+    "basePrice": 25.99,
+    "images": [
+      "https://images.unsplash.com/photo-1622470953794-aa9c70b0fb9d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "Soft Pink", "value": "#FDF2F8" },
+      { "name": "Lavender", "value": "#E0E7FF" },
+      { "name": "Mint", "value": "#ECFDF5" },
+      { "name": "Peach", "value": "#FEF3C7" },
+      { "name": "Sky Blue", "value": "#EFF6FF" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "description": "Ultra-soft v-neck tee in beautiful pastel colors. Perfect for delicate designs and feminine touches.",
+    "specifications": {
+      "material": "50% Cotton, 50% Modal",
+      "weight": "4.0 oz/sq yd",
+      "care": "Machine wash cold, air dry recommended",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 7,
+    "name": "Performance Tank",
+    "style": "Tank Top",
+    "basePrice": 21.99,
+    "images": [
+      "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "Black", "value": "#000000" },
+      { "name": "Dark Gray", "value": "#374151" },
+      { "name": "Navy", "value": "#1F2937" },
+      { "name": "Forest Green", "value": "#065F46" },
+      { "name": "Deep Purple", "value": "#581C87" }
+    ],
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "description": "Moisture-wicking performance tank designed for active wear and sports. Ideal for athletic and fitness-themed custom designs.",
+    "specifications": {
+      "material": "88% Polyester, 12% Spandex",
+      "weight": "3.8 oz/sq yd",
+      "care": "Machine wash cold, tumble dry low",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 8,
+    "name": "Cozy Long Sleeve",
+    "style": "Long Sleeve",
+    "basePrice": 31.99,
+    "images": [
+      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583743814966-8936f37f86cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "Cream", "value": "#FEF7ED" },
+      { "name": "Camel", "value": "#92400E" },
+      { "name": "Burgundy", "value": "#991B1B" },
+      { "name": "Forest", "value": "#14532D" },
+      { "name": "Dusty Rose", "value": "#BE185D" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "description": "Extra cozy long sleeve tee with brushed interior for maximum comfort. Perfect for fall and winter custom designs.",
+    "specifications": {
+      "material": "80% Cotton, 20% Polyester Fleece",
+      "weight": "6.1 oz/sq yd",
+      "care": "Machine wash warm, tumble dry medium",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 9,
+    "name": "Organic Cotton Crew",
+    "style": "Crew Neck",
+    "basePrice": 29.99,
+    "images": [
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "Natural", "value": "#F9F9F9" },
+      { "name": "Stone", "value": "#78716C" },
+      { "name": "Sage", "value": "#84CC16" },
+      { "name": "Terra Cotta", "value": "#EA580C" },
+      { "name": "Ocean Blue", "value": "#0EA5E9" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "description": "Sustainable organic cotton crew neck tee for the environmentally conscious. Perfect for eco-friendly custom prints.",
+    "specifications": {
+      "material": "100% Organic Cotton",
+      "weight": "4.3 oz/sq yd",
+      "care": "Machine wash cold, air dry recommended",
+      "origin": "Certified Organic"
+    }
+  },
+  {
+    "Id": 10,
+    "name": "Fitted V-Neck",
+    "style": "V-Neck",
+    "basePrice": 23.99,
+    "images": [
+      "https://images.unsplash.com/photo-1622470953794-aa9c70b0fb9d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "White", "value": "#FFFFFF" },
+      { "name": "Black", "value": "#000000" },
+      { "name": "Coral", "value": "#F87171" },
+      { "name": "Teal", "value": "#14B8A6" },
+      { "name": "Plum", "value": "#A855F7" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "description": "A fitted v-neck design that flatters every figure. Ideal for form-fitting custom designs and fashion-forward prints.",
+    "specifications": {
+      "material": "95% Cotton, 5% Elastane",
+      "weight": "4.2 oz/sq yd",
+      "care": "Machine wash cold, tumble dry low",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 11,
+    "name": "Muscle Tank",
+    "style": "Tank Top",
+    "basePrice": 18.99,
+    "images": [
+      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "Heather Gray", "value": "#9CA3AF" },
+      { "name": "Black", "value": "#000000" },
+      { "name": "White", "value": "#FFFFFF" },
+      { "name": "Army Green", "value": "#365314" },
+      { "name": "Rust", "value": "#DC2626" }
+    ],
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "description": "Classic muscle tank with dropped armholes for a relaxed, athletic fit. Perfect for gym wear and bold statement designs.",
+    "specifications": {
+      "material": "100% Cotton",
+      "weight": "4.5 oz/sq yd",
+      "care": "Machine wash cold, tumble dry low",
+      "origin": "Made in USA"
+    }
+  },
+  {
+    "Id": 12,
+    "name": "Raglan Long Sleeve",
+    "style": "Long Sleeve",
+    "basePrice": 27.99,
+    "images": [
+      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583743814966-8936f37f86cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    ],
+    "colors": [
+      { "name": "White/Navy", "value": "#FFFFFF" },
+      { "name": "Gray/Black", "value": "#6B7280" },
+      { "name": "White/Red", "value": "#FFFFFF" },
+      { "name": "Heather/Navy", "value": "#9CA3AF" },
+      { "name": "White/Forest", "value": "#FFFFFF" }
+    ],
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "description": "Classic raglan sleeve design with contrasting sleeves. Perfect for vintage-inspired custom prints and retro designs.",
+    "specifications": {
+      "material": "52% Cotton, 48% Polyester",
+      "weight": "4.2 oz/sq yd",
+      "care": "Machine wash cold, tumble dry low",
+      "origin": "Made in USA"
+    }
+  }
+]
