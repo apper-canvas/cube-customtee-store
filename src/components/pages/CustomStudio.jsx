@@ -102,11 +102,16 @@ const CustomStudio = () => {
   const [showSavedDesigns, setShowSavedDesigns] = useState(false);
 const [draggedElement, setDraggedElement] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [templateName, setTemplateName] = useState(null);
+const [templateName, setTemplateName] = useState(null);
   const fileInputRef = useRef(null);
   const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [designWarnings, setDesignWarnings] = useState([]);
-  
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [exportFormat, setExportFormat] = useState('png');
+  const [exportResolution, setExportResolution] = useState('high');
+  const [shareLink, setShareLink] = useState('');
+  const [isGeneratingShare, setIsGeneratingShare] = useState(false);
   // Get current design elements
   const designElements = designAreas[activeDesignArea];
 
@@ -552,9 +557,102 @@ const saveDesign = () => {
     existingCart.push(cartItem);
     localStorage.setItem('customCart', JSON.stringify(existingCart));
     
-    toast.success("Custom design added to cart!");
+toast.success("Custom design added to cart!");
   };
 
+  const exportDesign = async () => {
+    try {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set resolution based on selection
+      const resolutions = {
+        'standard': { width: 800, height: 1000 },
+        'high': { width: 1600, height: 2000 },
+        'print': { width: 3200, height: 4000 }
+      };
+      
+      const resolution = resolutions[exportResolution];
+      canvas.width = resolution.width;
+      canvas.height = resolution.height;
+      
+      // Fill background with shirt color
+      ctx.fillStyle = selectedColor.value;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Scale design elements to canvas resolution
+      const scale = canvas.width / 300; // 300 is mockup width
+      
+      for (const element of designElements) {
+        ctx.save();
+        ctx.translate(element.x * scale, element.y * scale);
+        ctx.rotate((element.rotation || 0) * Math.PI / 180);
+        
+        if (element.type === 'text') {
+          ctx.font = `${(element.fontSize || 20) * scale}px Arial`;
+          ctx.fillStyle = element.color || '#000000';
+          ctx.textAlign = 'center';
+          ctx.fillText(element.text, 0, 0);
+        } else if (element.type === 'image' && element.src) {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          await new Promise((resolve) => {
+            img.onload = () => {
+              ctx.drawImage(img, -element.width * scale / 2, -element.height * scale / 2, element.width * scale, element.height * scale);
+              resolve();
+            };
+            img.src = element.src;
+          });
+        }
+        ctx.restore();
+      }
+      
+      // Download the image
+      const link = document.createElement('a');
+      link.download = `custom-design-${Date.now()}.${exportFormat}`;
+      link.href = canvas.toDataURL(`image/${exportFormat}`);
+      link.click();
+      
+      toast.success(`Design exported as ${exportFormat.toUpperCase()} successfully!`);
+      setShowExportDialog(false);
+    } catch (error) {
+      toast.error('Failed to export design. Please try again.');
+    }
+  };
+
+  const generateShareLink = async () => {
+    setIsGeneratingShare(true);
+    try {
+      const designData = {
+        selectedStyle,
+        selectedColor,
+        selectedSize,
+        designElements,
+        designAreas,
+        totalPrice,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Generate unique ID for the share
+      const shareId = `design_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Store design temporarily (in real app, this would be sent to backend)
+      localStorage.setItem(`shared_design_${shareId}`, JSON.stringify(designData));
+      
+      // Create shareable URL
+      const baseUrl = window.location.origin;
+      const shareUrl = `${baseUrl}/design-preview/${shareId}`;
+      setShareLink(shareUrl);
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Share link copied to clipboard!');
+    } catch (error) {
+      toast.error('Failed to generate share link. Please try again.');
+    } finally {
+      setIsGeneratingShare(false);
+    }
+  };
 return (
     <>
       <div 
@@ -1345,7 +1443,27 @@ return (
                     className="text-sm"
                   >
                     <ApperIcon name="FolderOpen" className="w-4 h-4 mr-1" />
+<ApperIcon name="FolderOpen" className="w-4 h-4 mr-1" />
                     Designs
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowExportDialog(true)}
+                    className="text-sm"
+                  >
+                    <ApperIcon name="Download" className="w-4 h-4 mr-1" />
+                    Export
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowShareDialog(true)}
+                    className="text-sm"
+                  >
+                    <ApperIcon name="Share2" className="w-4 h-4 mr-1" />
+                    Share
                   </Button>
                 </div>
 
@@ -1452,9 +1570,169 @@ return (
                   </div>
                 )}
               </div>
+</div>
             </div>
           </div>
-)}
+        )}
+
+        {/* Export Dialog */}
+        {showExportDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-[400px] max-w-90vw">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold">Export Design</h3>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowExportDialog(false)}
+                  className="p-2"
+                >
+                  <ApperIcon name="X" size={16} />
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Export Format
+                  </label>
+                  <select
+                    value={exportFormat}
+                    onChange={(e) => setExportFormat(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="png">PNG (Best Quality)</option>
+                    <option value="jpeg">JPEG (Smaller Size)</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Resolution
+                  </label>
+                  <select
+                    value={exportResolution}
+                    onChange={(e) => setExportResolution(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="standard">Standard (800x1000px)</option>
+                    <option value="high">High (1600x2000px)</option>
+                    <option value="print">Print Ready (3200x4000px)</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center gap-3 mt-6">
+                  <Button
+                    onClick={exportDesign}
+                    className="flex-1"
+                  >
+                    <ApperIcon name="Download" className="w-4 h-4 mr-2" />
+                    Export Design
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowExportDialog(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Share Dialog */}
+        {showShareDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-[500px] max-w-90vw">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold">Share Design</h3>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowShareDialog(false)}
+                  className="p-2"
+                >
+                  <ApperIcon name="X" size={16} />
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                <p className="text-gray-600 text-sm">
+                  Generate a shareable link to get feedback and approval before ordering.
+                </p>
+                
+                {shareLink ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Shareable Link
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={shareLink}
+                          readOnly
+                          className="flex-1 text-sm"
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={() => navigator.clipboard.writeText(shareLink)}
+                          className="px-3"
+                        >
+                          <ApperIcon name="Copy" size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <ApperIcon name="Info" className="w-4 h-4 text-blue-600 mt-0.5" />
+                        <div className="text-sm text-blue-800">
+                          <p className="font-medium">Link features:</p>
+                          <ul className="mt-1 space-y-1 list-disc list-inside">
+                            <li>Preview design without editing capabilities</li>
+                            <li>Comments and feedback section</li>
+                            <li>Approval/rejection options</li>
+                            <li>Link expires in 30 days</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      onClick={() => {
+                        setShowShareDialog(false);
+                        setShareLink('');
+                      }}
+                      className="w-full"
+                    >
+                      Done
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Button
+                      onClick={generateShareLink}
+                      disabled={isGeneratingShare}
+                      className="w-full"
+                    >
+                      {isGeneratingShare ? (
+                        <>
+                          <ApperIcon name="Loader2" className="w-4 h-4 mr-2 animate-spin" />
+                          Generating Link...
+                        </>
+                      ) : (
+                        <>
+                          <ApperIcon name="Share2" className="w-4 h-4 mr-2" />
+                          Generate Share Link
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
     </>
