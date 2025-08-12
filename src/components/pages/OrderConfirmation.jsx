@@ -1,8 +1,8 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Button from '@/components/atoms/Button';
-import ApperIcon from '@/components/ApperIcon';
-
+import React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
 function OrderConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ function OrderConfirmation() {
       month: 'long',
       day: 'numeric'
     });
-  };
+};
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -31,6 +31,31 @@ function OrderConfirmation() {
     }).format(amount);
   };
 
+  // Social sharing functions
+  const shareOnFacebook = () => {
+    const url = encodeURIComponent(window.location.origin + '/design/' + orderData.designId);
+    const text = encodeURIComponent('Check out my amazing custom design from Custom Product Store!');
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank', 'width=600,height=400');
+  };
+
+  const shareOnTwitter = () => {
+    const url = encodeURIComponent(window.location.origin + '/design/' + orderData.designId);
+    const text = encodeURIComponent('Just ordered my custom design! 🎨 Check it out:');
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+  };
+
+  const shareOnInstagram = () => {
+    toast.info('Instagram sharing: Save your design image and post it manually to Instagram!');
+  };
+
+  const copyShareLink = () => {
+    const shareUrl = window.location.origin + '/design/' + (orderData.designId || 'shared');
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      toast.success('Link copied to clipboard!');
+    }).catch(() => {
+      toast.error('Failed to copy link');
+    });
+  };
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-2xl mx-auto">
@@ -117,6 +142,48 @@ function OrderConfirmation() {
           </div>
         </div>
 
+{/* Social Sharing Section */}
+        <div className="mb-8 p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl border border-blue-100">
+          <h3 className="text-lg font-display font-bold text-gray-900 mb-3 flex items-center">
+            <ApperIcon name="Share2" size={20} className="mr-2 text-blue-600" />
+            Share Your Design
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Show off your amazing custom design! Share on social media and inspire others.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={() => shareOnFacebook()}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <ApperIcon name="Facebook" size={16} className="mr-2" />
+              Facebook
+            </Button>
+            <Button
+              onClick={() => shareOnTwitter()}
+              className="bg-sky-500 hover:bg-sky-600 text-white"
+            >
+              <ApperIcon name="Twitter" size={16} className="mr-2" />
+              Twitter
+            </Button>
+            <Button
+              onClick={() => shareOnInstagram()}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+            >
+              <ApperIcon name="Instagram" size={16} className="mr-2" />
+              Instagram
+            </Button>
+            <Button
+              onClick={() => copyShareLink()}
+              variant="outline"
+              className="border-gray-300"
+            >
+              <ApperIcon name="Link" size={16} className="mr-2" />
+              Copy Link
+            </Button>
+          </div>
+        </div>
+
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
@@ -134,7 +201,7 @@ function OrderConfirmation() {
             Continue Shopping
           </Button>
         </div>
-      </div>
+</div>
     </div>
   );
 }

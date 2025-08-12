@@ -8,11 +8,14 @@ import Button from "@/components/atoms/Button";
 import ApperIcon from "@/components/ApperIcon";
 import { productService } from "@/services/api/productService";
 import { filterService } from "@/services/api/filterService";
-
+import { customerDesignsService } from "@/services/api/customerDesignsService";
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 const Products = ({ onAddToCart }) => {
-  const [products, setProducts] = useState([]);
+const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [popularDesigns, setPopularDesigns] = useState([]);
   const [filters, setFilters] = useState(null);
 const [selectedFilters, setSelectedFilters] = useState({
     styles: [],
@@ -25,11 +28,12 @@ const [selectedFilters, setSelectedFilters] = useState({
   });
 const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [designsLoading, setDesignsLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const navigate = useNavigate();
   // Load recently viewed products from localStorage
   useEffect(() => {
     const stored = localStorage.getItem('recentlyViewed');
@@ -63,7 +67,8 @@ const [searchQuery, setSearchQuery] = useState("");
     });
   };
   useEffect(() => {
-    loadData();
+loadData();
+    loadPopularDesigns();
   }, []);
 
 useEffect(() => {
@@ -72,7 +77,7 @@ useEffect(() => {
     }
   }, [selectedFilters, searchQuery]);
 
-  const loadData = async () => {
+const loadData = async () => {
     setLoading(true);
     setError("");
     try {
@@ -86,6 +91,18 @@ useEffect(() => {
       setError("Failed to load products. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPopularDesigns = async () => {
+    setDesignsLoading(true);
+    try {
+      const designs = await customerDesignsService.getPopularDesigns(6);
+      setPopularDesigns(designs);
+    } catch (err) {
+      console.error("Failed to load popular designs:", err);
+    } finally {
+      setDesignsLoading(false);
     }
   };
 
@@ -150,6 +167,21 @@ const handleProductClick = (product) => {
     setIsModalOpen(false);
   };
 
+  const handleRecreateDesign = async (design) => {
+    try {
+      await customerDesignsService.incrementRecreations(design.Id);
+      toast.success(`Recreating "${design.designTitle}" design!`);
+      navigate('/studio', { 
+        state: { 
+          inspiration: design,
+          recreateMode: true 
+        }
+      });
+    } catch (err) {
+      toast.error("Failed to load design inspiration");
+    }
+  };
+
 // Generate search suggestions from products
   const searchSuggestions = useMemo(() => {
     const suggestions = new Set();
@@ -163,7 +195,6 @@ const handleProductClick = (product) => {
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
@@ -232,6 +263,95 @@ const handleProductClick = (product) => {
           />
         </div>
       </div>
+
+      {/* Design Inspiration Feed */}
+      {popularDesigns.length > 0 && (
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-display font-bold text-gray-900 mb-2">
+                Design Inspiration
+              </h2>
+              <p className="text-gray-600">
+                Get inspired by popular customer creations
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/gallery')}
+              variant="outline"
+              className="flex items-center"
+            >
+              View All
+              <ApperIcon name="ArrowRight" size={16} className="ml-2" />
+            </Button>
+          </div>
+          
+          <div className="relative">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {popularDesigns.map((design) => (
+                <div
+                  key={`design-${design.Id}`}
+                  className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
+                >
+                  <div className="aspect-square bg-gray-100 overflow-hidden relative">
+                    <img
+                      src={design.image}
+                      alt={design.designTitle}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center text-sm font-medium text-gray-700">
+                        <ApperIcon name="Heart" size={14} className="mr-1 text-red-500" />
+                        {design.likes}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                          {design.designTitle}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          by {design.customerName}
+                        </p>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <ApperIcon name="Star" size={14} className="mr-1 text-yellow-400" />
+                        {design.popularity}
+                      </div>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      {design.description}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {design.tags.slice(0, 3).map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <Button
+                      onClick={() => handleRecreateDesign(design)}
+                      className="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                    >
+                      <ApperIcon name="Copy" size={16} className="mr-2" />
+                      Recreate This Design
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
 {/* Recently Viewed Section */}
       {recentlyViewed.length > 0 && (
         <div className="mb-8">

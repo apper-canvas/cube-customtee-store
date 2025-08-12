@@ -1,10 +1,324 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { customerDesignsService } from "@/services/api/customerDesignsService";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import ApperIcon from "@/components/ApperIcon";
 import SearchBar from "@/components/molecules/SearchBar";
+import Loading from "@/components/ui/Loading";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
 import Button from "@/components/atoms/Button";
 import productsData from "@/services/mockData/products.json";
 import filtersData from "@/services/mockData/filters.json";
+
+function DesignGallery() {
+  const [featuredDesigns, setFeaturedDesigns] = useState([]);
+  const [allDesigns, setAllDesigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('featured');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadDesigns();
+  }, []);
+
+  const loadDesigns = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [featured, all] = await Promise.all([
+        customerDesignsService.getFeaturedDesigns(),
+        customerDesignsService.getAllCustomerDesigns()
+      ]);
+      setFeaturedDesigns(featured);
+      setAllDesigns(all);
+    } catch (err) {
+      setError('Failed to load customer designs. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRecreateDesign = async (design) => {
+    try {
+      await customerDesignsService.incrementRecreations(design.Id);
+      toast.success(`Recreating "${design.designTitle}" design!`);
+      navigate('/studio', { 
+        state: { 
+          inspiration: design,
+          recreateMode: true 
+        }
+      });
+    } catch (err) {
+      toast.error("Failed to load design inspiration");
+    }
+  };
+
+  const handleShareDesign = async (design) => {
+    try {
+      await customerDesignsService.incrementShares(design.Id);
+      if (navigator.share) {
+        await navigator.share({
+          title: `Check out "${design.designTitle}" by ${design.customerName}`,
+          text: design.description,
+          url: window.location.href
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Design link copied to clipboard!');
+      }
+    } catch (err) {
+      toast.error("Failed to share design");
+    }
+  };
+
+  const filteredDesigns = activeTab === 'featured' ? featuredDesigns : allDesigns;
+  const categories = ['all', 'gaming', 'nature', 'coffee', 'adventure', 'ocean'];
+
+  if (loading) return <Loading />;
+  if (error) return <Error message={error} onRetry={loadDesigns} />;
+
+  return (
+    <div className="min-h-screen bg-background py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-900 mb-4">
+            Customer Design Showcase
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Get inspired by amazing designs created by our community. Every design tells a story.
+          </p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-200">
+            <Button
+              onClick={() => setActiveTab('featured')}
+              variant={activeTab === 'featured' ? 'default' : 'outline'}
+              className={`px-6 py-2 ${activeTab === 'featured' 
+                ? 'bg-primary text-white shadow-sm' 
+                : 'bg-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <ApperIcon name="Star" size={16} className="mr-2" />
+              Featured Designs
+            </Button>
+            <Button
+              onClick={() => setActiveTab('gallery')}
+              variant={activeTab === 'gallery' ? 'default' : 'outline'}
+              className={`px-6 py-2 ml-2 ${activeTab === 'gallery' 
+                ? 'bg-primary text-white shadow-sm' 
+                : 'bg-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <ApperIcon name="Grid3X3" size={16} className="mr-2" />
+              All Designs
+            </Button>
+          </div>
+        </div>
+
+        {/* Featured Spotlight */}
+        {activeTab === 'featured' && featuredDesigns.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-display font-bold text-gray-900 mb-6">Design Spotlight</h2>
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 border border-blue-100">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div className="aspect-square bg-white rounded-2xl overflow-hidden shadow-lg">
+                  <img
+                    src={featuredDesigns[0].image}
+                    alt={featuredDesigns[0].designTitle}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center mb-4">
+                    <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium mr-3">
+                      ⭐ Featured Design
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <ApperIcon name="Heart" size={16} className="mr-1 text-red-500" />
+                      {featuredDesigns[0].likes} likes
+                    </div>
+                  </div>
+                  <h3 className="text-3xl font-display font-bold text-gray-900 mb-3">
+                    {featuredDesigns[0].designTitle}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Created by <span className="font-semibold">{featuredDesigns[0].customerName}</span> from {featuredDesigns[0].customerLocation}
+                  </p>
+                  <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                    {featuredDesigns[0].description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {featuredDesigns[0].tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-white text-gray-700 rounded-full text-sm border border-gray-200"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => handleRecreateDesign(featuredDesigns[0])}
+                      className="bg-primary hover:bg-blue-700 text-white px-6 py-3"
+                    >
+                      <ApperIcon name="Copy" size={16} className="mr-2" />
+                      Recreate This Design
+                    </Button>
+                    <Button
+                      onClick={() => handleShareDesign(featuredDesigns[0])}
+                      variant="outline"
+                      className="px-6 py-3"
+                    >
+                      <ApperIcon name="Share2" size={16} className="mr-2" />
+                      Share
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Design Grid */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-display font-bold text-gray-900 mb-6">
+            {activeTab === 'featured' ? 'More Featured Designs' : 'Customer Gallery'}
+          </h2>
+          
+          {filteredDesigns.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {(activeTab === 'featured' ? featuredDesigns.slice(1) : filteredDesigns).map((design) => (
+                <div
+                  key={design.Id}
+                  className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group"
+                >
+                  <div className="aspect-square bg-gray-100 overflow-hidden relative">
+                    <img
+                      src={design.image}
+                      alt={design.designTitle}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center text-sm font-medium text-gray-700">
+                        <ApperIcon name="Heart" size={14} className="mr-1 text-red-500" />
+                        {design.likes}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                          {design.designTitle}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          by {design.customerName}
+                        </p>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <ApperIcon name="Star" size={14} className="mr-1 text-yellow-400" />
+                        {design.popularity}
+                      </div>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      {design.description}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {design.tags.slice(0, 2).map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleRecreateDesign(design)}
+                        className="flex-1 bg-primary hover:bg-blue-700 text-white text-sm"
+                      >
+                        <ApperIcon name="Copy" size={14} className="mr-1" />
+                        Recreate
+                      </Button>
+                      <Button
+                        onClick={() => handleShareDesign(design)}
+                        variant="outline"
+                        className="px-3 py-2"
+                      >
+                        <ApperIcon name="Share2" size={14} />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Empty 
+              message="No designs found" 
+              description="Check back later for more customer creations!"
+            />
+          )}
+        </div>
+
+        {/* Call to Action */}
+        <div className="text-center mt-16 p-8 bg-gradient-to-br from-primary/5 to-purple-50 rounded-3xl border border-blue-100">
+          <h2 className="text-2xl font-display font-bold text-gray-900 mb-4">
+            Create Your Own Design
+          </h2>
+          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+            Ready to join our community of creators? Start designing your custom apparel today and share your creativity with others.
+          </p>
+          <Button
+            onClick={() => navigate('/studio')}
+            className="bg-primary hover:bg-blue-700 text-white px-8 py-3"
+          >
+            <ApperIcon name="Palette" size={16} className="mr-2" />
+            Start Creating
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default DesignGallery;
+
+// Helper functions for social sharing (used by OrderConfirmation)
+function shareOnFacebook() {
+  const url = encodeURIComponent(window.location.href);
+  const text = encodeURIComponent("Check out my custom design from CustomTee Store!");
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank', 'width=600,height=400');
+}
+
+function shareOnTwitter() {
+  const url = encodeURIComponent(window.location.href);
+  const text = encodeURIComponent("Just created an amazing custom design! 🎨 #CustomTee #Design");
+  window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=400');
+}
+
+function shareOnInstagram() {
+  toast.info("Share your design photo on Instagram and tag us @customtee!");
+}
+
+async function copyShareLink() {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    toast.success('Link copied to clipboard!');
+  } catch (err) {
+    toast.error('Failed to copy link');
+  }
+}
 
 // Mock template data
 const mockTemplates = [
@@ -879,125 +1193,5 @@ const TemplateCard = ({ template, onCustomize, onLike, isLiked }) => (
   </div>
 );
 
-const DesignGallery = () => {
-  const [activeCategory, setActiveCategory] = useState("Popular");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [likedTemplates, setLikedTemplates] = useState(new Set());
-
-  const handleLike = useCallback((templateId) => {
-    setLikedTemplates(prev => {
-      const newLiked = new Set(prev);
-      if (newLiked.has(templateId)) {
-        newLiked.delete(templateId);
-      } else {
-        newLiked.add(templateId);
-      }
-      return newLiked;
-    });
-  }, []);
-
-const navigate = useNavigate();
-
-  const handleCustomize = useCallback((template) => {
-    const templateData = encodeURIComponent(JSON.stringify(template));
-    navigate(`/studio?template=${templateData}`);
-  }, [navigate]);
-
-  const handleSearch = useCallback((query) => {
-    setSearchQuery(query);
-  }, []);
-
-  // Filter templates based on category and search
-  const filteredTemplates = mockTemplates.filter(template => {
-    const matchesCategory = activeCategory === "Popular" || template.category === activeCategory;
-    const matchesSearch = !searchQuery || 
-      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    return matchesCategory && matchesSearch;
-  });
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gradient mb-4">Design Gallery</h1>
-        <p className="text-xl text-secondary max-w-2xl mx-auto">
-          Browse thousands of pre-made templates ready to customize for your perfect design.
-        </p>
-      </div>
-
-      {/* Search Bar */}
-      <div className="max-w-2xl mx-auto mb-8">
-        <SearchBar
-          placeholder="Search templates by name or keyword..."
-          onSearch={handleSearch}
-          suggestions={[]}
-        />
-      </div>
-
-      {/* Category Tabs */}
-      <div className="mb-8">
-        <div className="flex flex-wrap justify-center gap-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
-                activeCategory === category
-                  ? 'bg-primary text-white shadow-lg'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Results Count */}
-      <div className="mb-6">
-        <p className="text-secondary">
-          {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''} found
-          {searchQuery && ` for "${searchQuery}"`}
-          {activeCategory !== "Popular" && ` in ${activeCategory}`}
-        </p>
-      </div>
-
-      {/* Template Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredTemplates.map((template) => (
-          <TemplateCard
-            key={template.Id}
-            template={template}
-            onCustomize={handleCustomize}
-            onLike={handleLike}
-            isLiked={likedTemplates.has(template.Id)}
-          />
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {filteredTemplates.length === 0 && (
-        <div className="text-center py-12">
-          <ApperIcon name="Search" className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No templates found</h3>
-          <p className="text-secondary mb-6">
-            Try adjusting your search or browse a different category.
-          </p>
-          <Button
-            onClick={() => {
-              setSearchQuery("");
-              setActiveCategory("Popular");
-            }}
-            variant="outline"
-          >
-            Clear Filters
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default DesignGallery;
+// Export helper functions for use in other components
+export { shareOnFacebook, shareOnTwitter, shareOnInstagram, copyShareLink, mockTemplates };

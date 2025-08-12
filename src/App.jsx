@@ -14,7 +14,7 @@ import DesignGallery from "@/components/pages/DesignGallery";
 import SavedDesigns from "@/components/pages/SavedDesigns";
 import productsData from "@/services/mockData/products.json";
 import filtersData from "@/services/mockData/filters.json";
-
+import { customerDesignsService } from "@/services/api/customerDesignsService";
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
