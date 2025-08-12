@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Button from '@/components/atoms/Button';
-import ApperIcon from '@/components/ApperIcon';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
 
 function OrderDetailModal({ order, isOpen, onClose, onReorder }) {
   const [isReordering, setIsReordering] = useState(false);
@@ -113,30 +113,7 @@ function OrderDetailModal({ order, isOpen, onClose, onReorder }) {
   const timelineSteps = getTimelineSteps();
   const currentStepIndex = getCurrentStepIndex();
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-          onClick={(e) => e.target === e.currentTarget && onClose()}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
-          >
-            {/* Rest of the modal content continues... */}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-
-  return (
+return (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -163,7 +140,7 @@ function OrderDetailModal({ order, isOpen, onClose, onReorder }) {
                   Order Details
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  {order.orderNumber} • {formatDate(order.createdAt)}
+{order.orderNumber || order.id} • {formatDate(order.createdAt || order.orderDate)}
                 </p>
               </div>
               <Button
@@ -293,58 +270,65 @@ function OrderDetailModal({ order, isOpen, onClose, onReorder }) {
                       Order Timeline
                     </h3>
                     <div className="relative">
-                      {getTimelineSteps().map((step, index) => (
-                        <div key={step.key} className="relative flex items-center mb-6 last:mb-0">
-                          {/* Timeline line */}
-                          {index < getTimelineSteps().length - 1 && (
-                            <div className={`absolute left-6 top-12 w-0.5 h-6 ${
-                              step.isCompleted ? 'bg-success' : 'bg-gray-200'
-                            }`} />
-                          )}
-                          
-                          {/* Timeline dot */}
-                          <div className={`flex items-center justify-center w-12 h-12 rounded-full ${
-                            step.isCompleted 
-                              ? 'bg-success text-white' 
-                              : step.isActive 
-                                ? 'bg-primary text-white' 
-                                : 'bg-gray-200 text-gray-400'
-                          }`}>
-                            <ApperIcon name={step.icon} size={20} />
-                          </div>
-                          
-                          {/* Timeline content */}
-                          <div className="ml-4 flex-1">
-                            <div className="flex items-center justify-between">
-                              <h4 className={`font-medium ${
-                                step.isCompleted || step.isActive ? 'text-gray-900' : 'text-gray-500'
-                              }`}>
-                                {step.label}
-                              </h4>
-                              {step.timestamp && (
-                                <span className="text-sm text-gray-500">
-                                  {formatDate(step.timestamp)}
-                                </span>
+<div className="relative">
+                      {getTimelineSteps().map((step, index) => {
+                        const status = getStepStatus(step.key);
+                        const timestamp = getStepTimestamp(step.key);
+                        const isCompleted = status === 'completed';
+                        const isActive = status === 'current';
+                        
+                        return (
+                          <div key={step.key} className="relative flex items-center mb-6 last:mb-0">
+                            {/* Timeline line */}
+                            {index < getTimelineSteps().length - 1 && (
+                              <div className={`absolute left-6 top-12 w-0.5 h-6 ${
+                                isCompleted ? 'bg-green-500' : 'bg-gray-200'
+                              }`} />
+                            )}
+                            
+                            {/* Timeline dot */}
+                            <div className={`flex items-center justify-center w-12 h-12 rounded-full ${
+                              isCompleted 
+                                ? 'bg-green-500 text-white' 
+                                : isActive 
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'bg-gray-200 text-gray-400'
+                            }`}>
+                              <ApperIcon name={step.icon} size={20} />
+                            </div>
+                            
+                            {/* Timeline content */}
+                            <div className="ml-4 flex-1">
+                              <div className="flex items-center justify-between">
+                                <h4 className={`font-medium ${
+                                  isCompleted || isActive ? 'text-gray-900' : 'text-gray-500'
+                                }`}>
+                                  {step.label}
+                                </h4>
+                                {timestamp && (
+                                  <span className="text-sm text-gray-500">
+                                    {formatDate(timestamp)}
+                                  </span>
+                                )}
+                              </div>
+                              {isActive && !isCompleted && (
+                                <p className="text-sm text-blue-600 mt-1">In progress...</p>
                               )}
                             </div>
-                            {step.isActive && !step.isCompleted && (
-                              <p className="text-sm text-primary mt-1">In progress...</p>
-                            )}
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        );
+                      })}
                   </div>
 
                   {/* Tracking Information */}
-                  {order.status === 'Shipped' || order.status === 'Delivered' ? (
+{(order.status === 'shipped' || order.status === 'delivered') && (
                     <div>
                       <h3 className="text-lg font-display font-semibold text-gray-900 mb-4">
                         Tracking Information
                       </h3>
                       <div className="p-4 bg-blue-50 rounded-xl">
                         <div className="flex items-center space-x-3 mb-3">
-                          <ApperIcon name="Truck" size={20} className="text-primary" />
+                          <ApperIcon name="Truck" size={20} className="text-blue-600" />
                           <div>
                             <h4 className="font-medium text-gray-900">
                               {order.tracking?.carrier || 'UPS Ground'}
@@ -354,20 +338,18 @@ function OrderDetailModal({ order, isOpen, onClose, onReorder }) {
                             </p>
                           </div>
                         </div>
-                        {order.tracking?.url && (
-                          <Button
-                            onClick={handleTrackPackage}
-                            variant="outline"
-                            size="sm"
-                            className="w-full mt-3"
-                          >
-                            <ApperIcon name="ExternalLink" size={16} className="mr-2" />
-                            Track Package
-                          </Button>
-                        )}
+                        <Button
+                          onClick={handleTrackPackage}
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-3"
+                        >
+                          <ApperIcon name="ExternalLink" size={16} className="mr-2" />
+                          Track Package
+                        </Button>
                       </div>
                     </div>
-                  ) : null}
+                  )}
 
                   {/* Estimated Delivery */}
                   <div>
@@ -408,7 +390,7 @@ function OrderDetailModal({ order, isOpen, onClose, onReorder }) {
                     <ApperIcon name="RotateCcw" size={16} className="mr-2" />
                     {isReordering ? 'Adding...' : 'Reorder Items'}
                   </Button>
-                  {order.status === 'Delivered' ? (
+{order.status === 'delivered' ? (
                     <Button
                       onClick={handleRequestReview}
                       variant="outline"
