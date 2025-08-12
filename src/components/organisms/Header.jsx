@@ -8,11 +8,12 @@ const Header = ({ cartCount = 0, onCartClick, onMobileMenuToggle }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navigation = [
+const navigation = [
     { name: "Products", href: "/" },
     { name: "Design Gallery", href: "/gallery" },
     { name: "Custom Studio", href: "/studio" },
-    { name: "Orders", href: "/orders" }
+    { name: "Orders", href: "/orders" },
+    { name: "Checkout", href: "/checkout" }
   ];
 
   const toggleMobileMenu = () => {

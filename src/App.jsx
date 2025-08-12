@@ -8,6 +8,7 @@ import Products from "@/components/pages/Products";
 import DesignGallery from "@/components/pages/DesignGallery";
 import CustomStudio from "@/components/pages/CustomStudio";
 import Orders from "@/components/pages/Orders";
+import Checkout from "@/components/pages/Checkout";
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -59,11 +60,12 @@ const App = () => {
       
       <PromotionalBanner />
       <main className="flex-1">
-        <Routes>
+<Routes>
           <Route path="/" element={<Products onAddToCart={addToCart} />} />
           <Route path="/gallery" element={<DesignGallery />} />
           <Route path="/studio" element={<CustomStudio />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/checkout" element={<Checkout cartItems={cartItems} onClearCart={() => setCartItems([])} />} />
         </Routes>
       </main>
 

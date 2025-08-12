@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/atoms/Button";
 import ApperIcon from "@/components/ApperIcon";
@@ -6,12 +7,15 @@ import Empty from "@/components/ui/Empty";
 import { toast } from "react-toastify";
 
 const CartDrawer = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }) => {
-const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const navigate = useNavigate();
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 50 ? 0 : 5.99;
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
+  
   const handleCheckout = () => {
-    toast.info("Checkout functionality coming soon!");
+    onClose();
+    navigate('/checkout');
   };
 
   const handleUpdateQuantity = (itemId, newQuantity) => {
