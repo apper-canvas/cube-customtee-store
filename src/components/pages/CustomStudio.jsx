@@ -37,6 +37,17 @@ const fontOptions = [
   "Verdana",
   "Impact"
 ];
+// Design validation constants
+const PRINT_AREA = {
+  width: 220,
+  height: 280,
+  x: 40,
+  y: 60
+};
+
+const MIN_TEXT_SIZE = 8; // Minimum readable text size in pixels
+const MIN_IMAGE_RESOLUTION = 150; // Minimum DPI for good print quality
+const RECOMMENDED_IMAGE_SIZE = 300; // Recommended minimum pixel dimension
 
 const textColors = [
   { name: "Black", value: "#000000" },
@@ -48,7 +59,6 @@ const textColors = [
   { name: "Purple", value: "#8B5CF6" },
   { name: "Pink", value: "#EC4899" }
 ];
-
 const CustomStudio = () => {
   const [searchParams] = useSearchParams();
   const [selectedStyle, setSelectedStyle] = useState("Crew Neck");
@@ -90,11 +100,12 @@ const CustomStudio = () => {
   const [designName, setDesignName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showSavedDesigns, setShowSavedDesigns] = useState(false);
-  
-  const [draggedElement, setDraggedElement] = useState(null);
+const [draggedElement, setDraggedElement] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [templateName, setTemplateName] = useState(null);
   const fileInputRef = useRef(null);
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
+  const [designWarnings, setDesignWarnings] = useState([]);
   
   // Get current design elements
   const designElements = designAreas[activeDesignArea];
@@ -128,15 +139,66 @@ const CustomStudio = () => {
       }
     }
   }, [searchParams, activeDesignArea]);
-const basePrice = 24.99;
+// Design validation helpers
+  const isElementInPrintArea = (element) => {
+    const elementRight = element.x + (element.width || 100);
+    const elementBottom = element.y + (element.type === 'text' ? element.size || 16 : element.height || 100);
+    
+    return (
+      element.x >= PRINT_AREA.x &&
+      element.y >= PRINT_AREA.y &&
+      elementRight <= PRINT_AREA.x + PRINT_AREA.width &&
+      elementBottom <= PRINT_AREA.y + PRINT_AREA.height
+    );
+  };
+
+  const validateDesign = () => {
+    const warnings = [];
+    const allElements = Object.values(designAreas).flat();
+    
+    allElements.forEach(element => {
+      if (!isElementInPrintArea(element)) {
+        warnings.push({
+          id: element.id,
+          type: 'print-area',
+          message: `${element.type === 'text' ? 'Text' : 'Image'} extends outside printable area`
+        });
+      }
+      
+      if (element.type === 'text' && element.size < MIN_TEXT_SIZE) {
+        warnings.push({
+          id: element.id,
+          type: 'text-size',
+          message: `Text size ${element.size}px may be too small for printing (min: ${MIN_TEXT_SIZE}px)`
+        });
+      }
+      
+      if (element.type === 'image' && element.lowResolution) {
+        warnings.push({
+          id: element.id,
+          type: 'image-resolution',
+          message: 'Image resolution may be too low for good print quality'
+        });
+      }
+    });
+    
+    setDesignWarnings(warnings);
+    return warnings;
+  };
+
+  const basePrice = 24.99;
   const totalElements = Object.values(designAreas).reduce((total, elements) => total + elements.length, 0);
   const customizationCost = totalElements * 3.99;
   const totalPrice = basePrice + customizationCost;
-
 const addTextElement = () => {
     if (!textInput.trim()) {
       toast.error("Please enter some text");
       return;
+    }
+
+    // Validate text size
+    if (fontSize < MIN_TEXT_SIZE) {
+      toast.warning(`Text size ${fontSize}px may be too small for printing. Recommended minimum: ${MIN_TEXT_SIZE}px`);
     }
 
     const newElement = {
@@ -159,12 +221,20 @@ const addTextElement = () => {
       zIndex: designElements.length
     };
 
+    // Check if element is in print area
+    if (!isElementInPrintArea(newElement)) {
+      toast.warning("Text may be outside the printable area. Use Print Preview to check positioning.");
+    }
+
     setDesignAreas(prev => ({
       ...prev,
       [activeDesignArea]: [...prev[activeDesignArea], newElement]
     }));
     setTextInput("");
     toast.success(`Text added to ${activeDesignArea} design`);
+    
+    // Update validation warnings
+    setTimeout(() => validateDesign(), 100);
   };
 
 const handleImageUpload = (event) => {
@@ -176,30 +246,77 @@ const handleImageUpload = (event) => {
       return;
     }
 
+    // Check file size and estimate resolution
+    const fileSizeKB = file.size / 1024;
+    let isLowResolution = false;
+    
+    if (fileSizeKB < 50) {
+      toast.warning("Image file size is very small and may result in poor print quality.");
+      isLowResolution = true;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
-      const newElement = {
-        id: Date.now() + Math.random(),
-        type: "image",
-        content: e.target.result,
-        x: 100,
-        y: 150,
-        width: 100,
-        height: 100,
-        rotation: 0,
-        opacity: 100,
-        filter: "none",
-        brightness: 100,
-        isDragging: false,
-        visible: true,
-        zIndex: designElements.length
-      };
+      // Create image element to check dimensions
+      const img = new Image();
+      img.onload = () => {
+        let resolutionWarning = false;
+        
+        // Check image dimensions
+        if (img.width < RECOMMENDED_IMAGE_SIZE || img.height < RECOMMENDED_IMAGE_SIZE) {
+          toast.warning(`Image dimensions (${img.width}×${img.height}) may be too small for good print quality. Recommended: ${RECOMMENDED_IMAGE_SIZE}×${RECOMMENDED_IMAGE_SIZE} or larger.`);
+          isLowResolution = true;
+          resolutionWarning = true;
+        }
+        
+        // Estimate DPI based on dimensions and file size
+        const estimatedDPI = Math.sqrt((img.width * img.height) / (fileSizeKB / 100));
+        if (estimatedDPI < MIN_IMAGE_RESOLUTION) {
+          toast.warning("Image may have low resolution for printing. For best results, use high-resolution images.");
+          isLowResolution = true;
+          resolutionWarning = true;
+        }
+        
+        const newElement = {
+          id: Date.now() + Math.random(),
+          type: "image",
+          content: e.target.result,
+          x: 100,
+          y: 150,
+          width: Math.min(100, img.width / 2),
+          height: Math.min(100, img.height / 2),
+          originalWidth: img.width,
+          originalHeight: img.height,
+          rotation: 0,
+          opacity: 100,
+          filter: "none",
+          brightness: 100,
+          isDragging: false,
+          visible: true,
+          zIndex: designElements.length,
+          lowResolution: isLowResolution
+        };
 
-      setDesignAreas(prev => ({
-        ...prev,
-        [activeDesignArea]: [...prev[activeDesignArea], newElement]
-      }));
-      toast.success(`Image added to ${activeDesignArea} design`);
+        // Check if element is in print area
+        if (!isElementInPrintArea(newElement)) {
+          toast.warning("Image may be outside the printable area. Use Print Preview to check positioning.");
+        }
+
+        setDesignAreas(prev => ({
+          ...prev,
+          [activeDesignArea]: [...prev[activeDesignArea], newElement]
+        }));
+        
+        let successMessage = `Image added to ${activeDesignArea} design`;
+        if (resolutionWarning) {
+          successMessage += " (check resolution warnings)";
+        }
+        toast.success(successMessage);
+        
+        // Update validation warnings
+        setTimeout(() => validateDesign(), 100);
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   };
@@ -231,13 +348,28 @@ const handleMouseMove = useCallback((e) => {
 
     setDesignAreas(prev => ({
       ...prev,
-      [activeDesignArea]: prev[activeDesignArea].map(el =>
-        el.id === draggedElement
-          ? { ...el, x: Math.max(0, Math.min(x, 250)), y: Math.max(0, Math.min(y, 300)) }
-          : el
-      )
+      [activeDesignArea]: prev[activeDesignArea].map(el => {
+        if (el.id === draggedElement) {
+          const updatedElement = { ...el, x: Math.max(0, Math.min(x, 250)), y: Math.max(0, Math.min(y, 300)) };
+          
+          // Show warning if dragging outside print area
+          if (showPrintPreview && !isElementInPrintArea(updatedElement)) {
+            // Debounced warning to avoid spam
+            clearTimeout(window.printAreaWarning);
+            window.printAreaWarning = setTimeout(() => {
+              toast.warning("Element is outside the printable area", { toastId: 'print-area-warning' });
+            }, 500);
+          }
+          
+          return updatedElement;
+        }
+        return el;
+      })
     }));
-  }, [draggedElement, dragOffset, activeDesignArea]);
+    
+    // Update validation warnings after drag
+    setTimeout(() => validateDesign(), 100);
+  }, [draggedElement, dragOffset, activeDesignArea, showPrintPreview]);
 
 const handleMouseUp = useCallback(() => {
     if (draggedElement) {
@@ -284,12 +416,25 @@ const removeElement = (id) => {
   };
 
   const updateElementProperty = (id, property, value) => {
-    setDesignAreas(prev => ({
+setDesignAreas(prev => ({
       ...prev,
-      [activeDesignArea]: prev[activeDesignArea].map(el =>
-        el.id === id ? { ...el, [property]: value } : el
-      )
+      [activeDesignArea]: prev[activeDesignArea].map(el => {
+        if (el.id === id) {
+          const updatedElement = { ...el, [property]: value };
+          
+          // Validate text size changes
+          if (property === 'size' && updatedElement.type === 'text' && value < MIN_TEXT_SIZE) {
+            toast.warning(`Text size ${value}px may be too small for printing. Recommended minimum: ${MIN_TEXT_SIZE}px`);
+          }
+          
+          return updatedElement;
+        }
+        return el;
+      })
     }));
+    
+    // Update validation warnings after property change
+    setTimeout(() => validateDesign(), 100);
   };
 
 
@@ -519,7 +664,7 @@ return (
               </div>
               
               {/* T-Shirt Mockup */}
-              <div className="relative bg-gray-50 rounded-xl p-8 flex justify-center items-center min-h-[500px]">
+<div className="relative bg-gray-50 rounded-xl p-8 flex justify-center items-center min-h-[500px]">
                 <div 
                   className="t-shirt-mockup relative"
                   style={{ 
@@ -535,6 +680,23 @@ return (
                       : "none"
                   }}
                 >
+                  {/* Print Area Boundaries */}
+                  {showPrintPreview && (
+                    <div
+                      className="absolute border-2 border-dashed border-blue-500 bg-blue-50 bg-opacity-20 pointer-events-none"
+                      style={{
+                        left: PRINT_AREA.x,
+                        top: PRINT_AREA.y,
+                        width: PRINT_AREA.width,
+                        height: PRINT_AREA.height
+                      }}
+                    >
+                      <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                        Print Area
+                      </div>
+                    </div>
+                  )}
+
                   {/* Sleeves for Long Sleeve */}
                   {selectedStyle === "Long Sleeve" && (
                     <>
@@ -550,67 +712,89 @@ return (
                   )}
 
                   {/* Design Elements */}
-                  {designElements.map((element) => (
-                    <div
-                      key={element.id}
-                      className={cn(
-                        "absolute cursor-move select-none group",
-                        element.isDragging && "z-50",
-                        !element.visible && "opacity-30"
-                      )}
-                      style={{
-                        left: element.x,
-                        top: element.y,
-                        transform: `scale(${element.isDragging ? 1.05 : 1}) rotate(${element.rotation || 0}deg)`,
-                        opacity: element.visible ? (element.opacity || 100) / 100 : 0.3,
-                        zIndex: element.zIndex || 0
-                      }}
-                      onMouseDown={(e) => handleMouseDown(e, element)}
-                      onClick={() => setSelectedElement(element)}
-                    >
-                      {element.type === "text" ? (
-                        <div
-                          style={{
-                            fontFamily: element.font,
-                            fontSize: `${element.size}px`,
-                            color: element.color,
-                            fontWeight: "bold",
-                            textShadow: element.shadow > 0 
-                              ? `${element.shadow}px ${element.shadow}px ${element.shadow * 2}px ${element.shadowColor || "#000000"}`
-                              : element.color === "#FFFFFF" ? "1px 1px 2px rgba(0,0,0,0.3)" : "none",
-                            WebkitTextStroke: element.stroke > 0 
-                              ? `${element.stroke}px ${element.strokeColor || "#000000"}`
-                              : "none"
-                          }}
-                        >
-                          {element.content}
-                        </div>
-                      ) : (
-                        <img
-                          src={element.content}
-                          alt="Custom design"
-                          style={{
-                            width: element.width,
-                            height: element.height,
-                            objectFit: "contain",
-                            filter: element.filter !== "none" 
-                              ? `${element.filter} brightness(${element.brightness || 100}%)`
-                              : `brightness(${element.brightness || 100}%)`
-                          }}
-                          draggable={false}
-                        />
-                      )}
-                      
-                      {/* Remove button */}
-                      <button
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                        onClick={() => removeElement(element.id)}
-                        onMouseDown={(e) => e.stopPropagation()}
+                  {designElements.map((element) => {
+                    const hasWarning = designWarnings.some(w => w.id === element.id);
+                    const isOutsidePrintArea = showPrintPreview && !isElementInPrintArea(element);
+                    
+                    return (
+                      <div
+                        key={element.id}
+                        className={cn(
+                          "absolute cursor-move select-none group",
+                          element.isDragging && "z-50",
+                          !element.visible && "opacity-30",
+                          hasWarning && "ring-2 ring-yellow-400 ring-opacity-50",
+                          isOutsidePrintArea && "ring-2 ring-red-400 ring-opacity-50"
+                        )}
+                        style={{
+                          left: element.x,
+                          top: element.y,
+                          transform: `scale(${element.isDragging ? 1.05 : 1}) rotate(${element.rotation || 0}deg)`,
+                          opacity: element.visible ? (element.opacity || 100) / 100 : 0.3,
+                          zIndex: element.zIndex || 0
+                        }}
+                        onMouseDown={(e) => handleMouseDown(e, element)}
+                        onClick={() => setSelectedElement(element)}
                       >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+                        {element.type === "text" ? (
+                          <div
+                            style={{
+                              fontFamily: element.font,
+                              fontSize: `${element.size}px`,
+                              color: element.color,
+                              fontWeight: "bold",
+                              textShadow: element.shadow > 0 
+                                ? `${element.shadow}px ${element.shadow}px ${element.shadow * 2}px ${element.shadowColor || "#000000"}`
+                                : element.color === "#FFFFFF" ? "1px 1px 2px rgba(0,0,0,0.3)" : "none",
+                              WebkitTextStroke: element.stroke > 0 
+                                ? `${element.stroke}px ${element.strokeColor || "#000000"}`
+                                : "none"
+                            }}
+                          >
+                            {element.content}
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <img
+                              src={element.content}
+                              alt="Custom design"
+                              style={{
+                                width: element.width,
+                                height: element.height,
+                                objectFit: "contain",
+                                filter: element.filter !== "none" 
+                                  ? `${element.filter} brightness(${element.brightness || 100}%)`
+                                  : `brightness(${element.brightness || 100}%)`
+                              }}
+                              draggable={false}
+                            />
+                            {/* Low resolution warning indicator */}
+                            {element.lowResolution && (
+                              <div className="absolute -top-1 -left-1 bg-yellow-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
+                                !
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Warning indicators */}
+                        {hasWarning && (
+                          <div className="absolute -top-2 -left-2 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            ⚠
+                          </div>
+                        )}
+                        
+                        {/* Remove button */}
+                        <button
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                          onClick={() => removeElement(element.id)}
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Style Label */}
@@ -626,6 +810,51 @@ return (
           <div className="xl:col-span-3">
             <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6 max-h-screen overflow-y-auto">
               <h2 className="text-xl font-semibold">Design Tools</h2>
+{/* Design Validation Controls */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-800">Design Validation</h3>
+                  <Button
+                    variant={showPrintPreview ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowPrintPreview(!showPrintPreview)}
+                  >
+                    <ApperIcon name={showPrintPreview ? "EyeOff" : "Eye"} className="w-4 h-4 mr-1" />
+                    Print Preview
+                  </Button>
+                </div>
+                
+                {designWarnings.length > 0 && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center text-yellow-800 text-sm font-medium">
+                      <ApperIcon name="AlertTriangle" className="w-4 h-4 mr-2" />
+                      Design Warnings ({designWarnings.length})
+                    </div>
+                    <div className="space-y-1 text-sm text-yellow-700">
+                      {designWarnings.slice(0, 3).map((warning, index) => (
+                        <div key={index} className="flex items-start">
+                          <span className="w-1 h-1 bg-yellow-500 rounded-full mt-2 mr-2 flex-shrink-0" />
+                          {warning.message}
+                        </div>
+                      ))}
+                      {designWarnings.length > 3 && (
+                        <div className="text-yellow-600 font-medium">
+                          +{designWarnings.length - 3} more warnings
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {showPrintPreview && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
+                    <div className="flex items-center text-blue-800 text-sm">
+                      <ApperIcon name="Info" className="w-4 h-4 mr-2" />
+                      Print area is highlighted in blue. Elements outside this area may not print properly.
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Style Selector */}
               <div>
@@ -956,8 +1185,35 @@ return (
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
-                <Button onClick={addToCart} className="w-full">
+<div className="space-y-3">
+                {/* Design validation button */}
+                <Button 
+                  onClick={() => {
+                    const warnings = validateDesign();
+                    if (warnings.length === 0) {
+                      toast.success("Design validated successfully! No issues found.");
+                    } else {
+                      toast.warning(`Design has ${warnings.length} warning${warnings.length > 1 ? 's' : ''}. Check the validation panel.`);
+                    }
+                  }}
+                  variant="outline"
+                  className="w-full mb-2"
+                >
+                  <ApperIcon name="CheckCircle2" className="w-4 h-4 mr-2" />
+                  Validate Design
+                </Button>
+                
+                <Button 
+                  onClick={() => {
+                    const warnings = validateDesign();
+                    if (warnings.length > 0) {
+                      toast.error(`Please fix ${warnings.length} design warning${warnings.length > 1 ? 's' : ''} before adding to cart.`);
+                      return;
+                    }
+                    addToCart();
+                  }} 
+                  className="w-full"
+                >
                   <ApperIcon name="ShoppingCart" className="w-4 h-4 mr-2" />
                   Add to Cart
                 </Button>
