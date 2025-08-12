@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
@@ -49,6 +50,7 @@ const textColors = [
 ];
 
 const CustomStudio = () => {
+  const [searchParams] = useSearchParams();
   const [selectedStyle, setSelectedStyle] = useState("Crew Neck");
   const [selectedColor, setSelectedColor] = useState(availableColors[0]);
   const [selectedSize, setSelectedSize] = useState("M");
@@ -59,8 +61,27 @@ const CustomStudio = () => {
   const [fontSize, setFontSize] = useState(24);
   const [draggedElement, setDraggedElement] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [templateName, setTemplateName] = useState(null);
   const fileInputRef = useRef(null);
 
+  // Load template data from URL params
+  useEffect(() => {
+    const templateData = searchParams.get('template');
+    if (templateData) {
+      try {
+        const template = JSON.parse(decodeURIComponent(templateData));
+        setTemplateName(template.name);
+        if (template.designElements && template.designElements.length > 0) {
+          setDesignElements(template.designElements.map(element => ({
+            ...element,
+            id: Date.now() + Math.random() + element.id // Ensure unique IDs
+          })));
+        }
+      } catch (error) {
+        console.error('Failed to load template:', error);
+      }
+    }
+  }, [searchParams]);
   const basePrice = 24.99;
   const customizationCost = designElements.length * 3.99;
   const totalPrice = basePrice + customizationCost;
@@ -215,10 +236,21 @@ const CustomStudio = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-8">
+<div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gradient mb-4">Custom Design Studio</h1>
+          {templateName && (
+            <div className="mb-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <ApperIcon name="Template" size={16} className="mr-1" />
+                Based on Template: {templateName}
+              </span>
+            </div>
+          )}
           <p className="text-xl text-secondary max-w-2xl mx-auto">
-            Create your own unique designs with our powerful customization tools
+            {templateName 
+              ? "Customize this template or create your own unique design with our powerful tools"
+              : "Create your own unique designs with our powerful customization tools"
+            }
           </p>
         </div>
 
