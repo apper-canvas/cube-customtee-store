@@ -8,10 +8,23 @@ import ApperIcon from "@/components/ApperIcon";
 import { toast } from "react-toastify";
 
 const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
-  const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
+const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Generate mockup URL based on selected color and product style
+  const generateMockupUrl = (color, style, viewAngle = 'front') => {
+    const colorHex = color?.value?.replace('#', '') || 'FFFFFF';
+    const styleParam = style?.toLowerCase().replace(/\s+/g, '-') || 'crew-neck';
+    return `https://api.placid.app/u/mockup-tshirt?style=${styleParam}&color=${colorHex}&view=${viewAngle}&width=800&height=800`;
+  };
+
+  // Generate mockup images for current selection
+  const mockupImages = [
+    generateMockupUrl(selectedColor, product?.style, 'front'),
+    generateMockupUrl(selectedColor, product?.style, 'back'),
+  ];
 
   if (!product) return null;
 
@@ -70,15 +83,15 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
               {/* Image Section */}
               <div className="lg:w-1/2">
                 <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200">
-                  <img
-                    src={product.images[currentImageIndex]}
-                    alt={product.name}
+<img
+                    src={mockupImages[currentImageIndex] || product.images[currentImageIndex]}
+                    alt={`${product.name} in ${selectedColor?.name}`}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                {product.images.length > 1 && (
+{mockupImages.length > 1 && (
                   <div className="flex space-x-2 p-4 overflow-x-auto">
-                    {product.images.map((image, index) => (
+                    {mockupImages.map((mockupUrl, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
@@ -86,7 +99,11 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
                           currentImageIndex === index ? "border-primary" : "border-gray-200"
                         }`}
                       >
-                        <img src={image} alt="" className="w-full h-full object-cover" />
+                        <img 
+                          src={mockupUrl} 
+                          alt={index === 0 ? 'Front view' : 'Back view'} 
+                          className="w-full h-full object-cover" 
+                        />
                       </button>
                     ))}
                   </div>
