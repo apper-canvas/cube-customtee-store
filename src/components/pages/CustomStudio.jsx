@@ -1443,7 +1443,6 @@ return (
                     className="text-sm"
                   >
                     <ApperIcon name="FolderOpen" className="w-4 h-4 mr-1" />
-<ApperIcon name="FolderOpen" className="w-4 h-4 mr-1" />
                     Designs
                   </Button>
                 </div>
@@ -1570,7 +1569,6 @@ return (
                   </div>
                 )}
               </div>
-</div>
             </div>
           </div>
         )}
@@ -1734,6 +1732,7 @@ return (
           </div>
         )}
       </div>
+</div>
     </div>
     </>
   );
