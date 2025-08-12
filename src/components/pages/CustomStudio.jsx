@@ -186,9 +186,46 @@ const [draggedElement, setDraggedElement] = useState(null);
     return warnings;
   };
 
+// Enhanced pricing calculation with complexity
   const basePrice = 24.99;
   const totalElements = Object.values(designAreas).reduce((total, elements) => total + elements.length, 0);
-  const customizationCost = totalElements * 3.99;
+  
+  // Calculate design complexity
+  const calculateComplexity = () => {
+    const allElements = Object.values(designAreas).flat();
+    let complexityScore = 0;
+    
+    allElements.forEach(element => {
+      if (element.type === 'text') {
+        // Base text complexity
+        complexityScore += 1;
+        // Additional complexity for effects
+        if (element.stroke > 0) complexityScore += 0.5;
+        if (element.shadow > 0) complexityScore += 0.5;
+        if (element.rotation !== 0) complexityScore += 0.3;
+      } else if (element.type === 'image') {
+        // Base image complexity
+        complexityScore += 2;
+        // Additional complexity for effects
+        if (element.filter !== 'none') complexityScore += 0.5;
+        if (element.rotation !== 0) complexityScore += 0.3;
+      }
+    });
+    
+    return complexityScore;
+  };
+  
+  const complexityScore = calculateComplexity();
+  const getComplexityLevel = (score) => {
+    if (score <= 2) return { level: 'Simple', multiplier: 1.0, color: 'green' };
+    if (score <= 5) return { level: 'Moderate', multiplier: 1.2, color: 'yellow' };
+    if (score <= 8) return { level: 'Complex', multiplier: 1.5, color: 'orange' };
+    return { level: 'Very Complex', multiplier: 2.0, color: 'red' };
+  };
+  
+  const complexity = getComplexityLevel(complexityScore);
+  const baseCost = totalElements * 3.99;
+  const customizationCost = baseCost * complexity.multiplier;
   const totalPrice = basePrice + customizationCost;
 const addTextElement = () => {
     if (!textInput.trim()) {
@@ -665,136 +702,191 @@ return (
               
               {/* T-Shirt Mockup */}
 <div className="relative bg-gray-50 rounded-xl p-8 flex justify-center items-center min-h-[500px]">
-                <div 
-                  className="t-shirt-mockup relative"
-                  style={{ 
-                    width: 300, 
-                    height: 400,
-                    backgroundColor: selectedColor.value,
-                    borderRadius: selectedStyle === "V-Neck" ? "20px 20px 0 0" : "8px",
-                    border: selectedColor.value === "#FFFFFF" ? "2px solid #e5e7eb" : "none",
-                    clipPath: selectedStyle === "Tank Top" 
-                      ? "polygon(20% 0%, 80% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%)"
-                      : selectedStyle === "V-Neck"
-                      ? "polygon(0% 0%, 40% 0%, 50% 15%, 60% 0%, 100% 0%, 100% 100%, 0% 100%)"
-                      : "none"
-                  }}
-                >
-                  {/* Print Area Boundaries */}
-                  {showPrintPreview && (
-                    <div
-                      className="absolute border-2 border-dashed border-blue-500 bg-blue-50 bg-opacity-20 pointer-events-none"
-                      style={{
-                        left: PRINT_AREA.x,
-                        top: PRINT_AREA.y,
-                        width: PRINT_AREA.width,
-                        height: PRINT_AREA.height
-                      }}
-                    >
-                      <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                        Print Area
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Sleeves for Long Sleeve */}
-                  {selectedStyle === "Long Sleeve" && (
-                    <>
-                      <div 
-                        className="absolute -left-8 top-4 w-16 h-32 rounded-full"
-                        style={{ backgroundColor: selectedColor.value }}
-                      />
-                      <div 
-                        className="absolute -right-8 top-4 w-16 h-32 rounded-full"
-                        style={{ backgroundColor: selectedColor.value }}
-                      />
-                    </>
-                  )}
-
-                  {/* Design Elements */}
-                  {designElements.map((element) => {
-                    const hasWarning = designWarnings.some(w => w.id === element.id);
-                    const isOutsidePrintArea = showPrintPreview && !isElementInPrintArea(element);
-                    
-                    return (
-                      <div
-                        key={element.id}
-                        className={cn(
-                          "absolute cursor-move select-none group",
-                          element.isDragging && "z-50",
-                          !element.visible && "opacity-30",
-                          hasWarning && "ring-2 ring-yellow-400 ring-opacity-50",
-                          isOutsidePrintArea && "ring-2 ring-red-400 ring-opacity-50"
-                        )}
-                        style={{
-                          left: element.x,
-                          top: element.y,
-                          transform: `scale(${element.isDragging ? 1.05 : 1}) rotate(${element.rotation || 0}deg)`,
-                          opacity: element.visible ? (element.opacity || 100) / 100 : 0.3,
-                          zIndex: element.zIndex || 0
-                        }}
-                        onMouseDown={(e) => handleMouseDown(e, element)}
-                        onClick={() => setSelectedElement(element)}
-                      >
-                        {element.type === "text" ? (
-                          <div
-                            style={{
-                              fontFamily: element.font,
-                              fontSize: `${element.size}px`,
-                              color: element.color,
-                              fontWeight: "bold",
-                              textShadow: element.shadow > 0 
-                                ? `${element.shadow}px ${element.shadow}px ${element.shadow * 2}px ${element.shadowColor || "#000000"}`
-                                : element.color === "#FFFFFF" ? "1px 1px 2px rgba(0,0,0,0.3)" : "none",
-                              WebkitTextStroke: element.stroke > 0 
-                                ? `${element.stroke}px ${element.strokeColor || "#000000"}`
-                                : "none"
-                            }}
-                          >
-                            {element.content}
-                          </div>
-                        ) : (
-                          <div className="relative">
-                            <img
-                              src={element.content}
-                              alt="Custom design"
-                              style={{
-                                width: element.width,
-                                height: element.height,
-                                objectFit: "contain",
-                                filter: element.filter !== "none" 
-                                  ? `${element.filter} brightness(${element.brightness || 100}%)`
-                                  : `brightness(${element.brightness || 100}%)`
-                              }}
-                              draggable={false}
-                            />
-                            {/* Low resolution warning indicator */}
-                            {element.lowResolution && (
-                              <div className="absolute -top-1 -left-1 bg-yellow-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
-                                !
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Warning indicators */}
-                        {hasWarning && (
-                          <div className="absolute -top-2 -left-2 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                            ⚠
-                          </div>
-                        )}
-                        
-                        {/* Remove button */}
+                  {/* Color Preview Selector */}
+                  <div className="absolute top-4 left-4 bg-white rounded-lg p-3 shadow-md">
+                    <div className="text-xs font-medium text-gray-600 mb-2">Color Preview</div>
+                    <div className="flex gap-1">
+                      {availableColors.slice(0, 5).map((color) => (
                         <button
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                          onClick={() => removeElement(element.id)}
-                          onMouseDown={(e) => e.stopPropagation()}
-                        >
-                          ×
-                        </button>
+                          key={color.name}
+                          onClick={() => setSelectedColor(color)}
+                          className={cn(
+                            "w-6 h-6 rounded border-2 transition-all",
+                            selectedColor.name === color.name 
+                              ? "border-blue-500 ring-2 ring-blue-200" 
+                              : "border-gray-200 hover:border-gray-300"
+                          )}
+                          style={{ backgroundColor: color.value }}
+                          title={`Preview on ${color.name}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Design Complexity Indicator */}
+                  <div className="absolute top-4 right-4 bg-white rounded-lg p-3 shadow-md">
+                    <div className="text-xs font-medium text-gray-600 mb-1">Design Complexity</div>
+                    <div className="flex items-center gap-2">
+                      <div className={cn(
+                        "w-3 h-3 rounded-full",
+                        complexity.color === 'green' && "bg-green-500",
+                        complexity.color === 'yellow' && "bg-yellow-500",
+                        complexity.color === 'orange' && "bg-orange-500",
+                        complexity.color === 'red' && "bg-red-500"
+                      )} />
+                      <span className="text-sm font-medium">{complexity.level}</span>
+                      <span className="text-xs text-gray-500">
+                        (+{((complexity.multiplier - 1) * 100).toFixed(0)}%)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div 
+                    className="t-shirt-mockup relative"
+                    style={{ 
+                      width: 300, 
+                      height: 400,
+                      backgroundColor: selectedColor.value,
+                      borderRadius: selectedStyle === "V-Neck" ? "20px 20px 0 0" : "8px",
+                      border: selectedColor.value === "#FFFFFF" ? "2px solid #e5e7eb" : "none",
+                      clipPath: selectedStyle === "Tank Top" 
+                        ? "polygon(20% 0%, 80% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%)"
+                        : selectedStyle === "V-Neck"
+                        ? "polygon(0% 0%, 40% 0%, 50% 15%, 60% 0%, 100% 0%, 100% 100%, 0% 100%)"
+                        : "none"
+                    }}
+                  >
+                    {/* Print Area Boundaries */}
+                    {showPrintPreview && (
+                      <div
+                        className="absolute border-2 border-dashed border-blue-500 bg-blue-50 bg-opacity-20 pointer-events-none"
+                        style={{
+                          left: PRINT_AREA.x,
+                          top: PRINT_AREA.y,
+                          width: PRINT_AREA.width,
+                          height: PRINT_AREA.height
+                        }}
+                      >
+                        <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                          Print Area
+                        </div>
                       </div>
-                    );
-                  })}
+                    )}
+
+                    {/* Sleeves for Long Sleeve */}
+                    {selectedStyle === "Long Sleeve" && (
+                      <>
+                        <div 
+                          className="absolute -left-8 top-4 w-16 h-32 rounded-full"
+                          style={{ backgroundColor: selectedColor.value }}
+                        />
+                        <div 
+                          className="absolute -right-8 top-4 w-16 h-32 rounded-full"
+                          style={{ backgroundColor: selectedColor.value }}
+                        />
+                      </>
+                    )}
+
+                    {/* Design Elements */}
+                    {designElements.map((element) => {
+                      const hasWarning = designWarnings.some(w => w.id === element.id);
+                      const isOutsidePrintArea = showPrintPreview && !isElementInPrintArea(element);
+                      
+                      // Color contrast warning for text elements
+                      const hasColorContrast = element.type === 'text' && 
+                        element.color === selectedColor.value && 
+                        element.stroke === 0 && 
+                        element.shadow === 0;
+                      
+                      return (
+                        <div
+                          key={element.id}
+                          className={cn(
+                            "absolute cursor-move select-none group",
+                            element.isDragging && "z-50",
+                            !element.visible && "opacity-30",
+                            hasWarning && "ring-2 ring-yellow-400 ring-opacity-50",
+                            isOutsidePrintArea && "ring-2 ring-red-400 ring-opacity-50",
+                            hasColorContrast && "ring-2 ring-purple-400 ring-opacity-50"
+                          )}
+                          style={{
+                            left: element.x,
+                            top: element.y,
+                            transform: `scale(${element.isDragging ? 1.05 : 1}) rotate(${element.rotation || 0}deg)`,
+                            opacity: element.visible ? (element.opacity || 100) / 100 : 0.3,
+                            zIndex: element.zIndex || 0
+                          }}
+                          onMouseDown={(e) => handleMouseDown(e, element)}
+                          onClick={() => setSelectedElement(element)}
+                        >
+                          {element.type === "text" ? (
+                            <div
+                              style={{
+                                fontFamily: element.font,
+                                fontSize: `${element.size}px`,
+                                color: element.color,
+                                fontWeight: "bold",
+                                textShadow: element.shadow > 0 
+                                  ? `${element.shadow}px ${element.shadow}px ${element.shadow * 2}px ${element.shadowColor || "#000000"}`
+                                  : hasColorContrast 
+                                  ? "1px 1px 3px rgba(0,0,0,0.8), -1px -1px 3px rgba(255,255,255,0.8)"
+                                  : element.color === "#FFFFFF" ? "1px 1px 2px rgba(0,0,0,0.3)" : "none",
+                                WebkitTextStroke: element.stroke > 0 
+                                  ? `${element.stroke}px ${element.strokeColor || "#000000"}`
+                                  : "none"
+                              }}
+                            >
+                              {element.content}
+                            </div>
+                          ) : (
+                            <div className="relative">
+                              <img
+                                src={element.content}
+                                alt="Custom design"
+                                style={{
+                                  width: element.width,
+                                  height: element.height,
+                                  objectFit: "contain",
+                                  filter: element.filter !== "none" 
+                                    ? `${element.filter} brightness(${element.brightness || 100}%)`
+                                    : `brightness(${element.brightness || 100}%)`
+                                }}
+                                draggable={false}
+                              />
+                              {/* Low resolution warning indicator */}
+                              {element.lowResolution && (
+                                <div className="absolute -top-1 -left-1 bg-yellow-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
+                                  !
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Color contrast warning */}
+                          {hasColorContrast && (
+                            <div className="absolute -top-2 -left-2 bg-purple-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                              👁
+                            </div>
+                          )}
+                          
+                          {/* Warning indicators */}
+                          {hasWarning && (
+                            <div className="absolute -top-2 -left-2 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                              ⚠
+                            </div>
+                          )}
+                          
+                          {/* Remove button */}
+                          <button
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                            onClick={() => removeElement(element.id)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      );
+                    })}
                 </div>
 
                 {/* Style Label */}
@@ -1167,7 +1259,7 @@ return (
                 </div>
               </div>
 
-              {/* Price Display */}
+{/* Price Display */}
               <div className="border-t pt-6">
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex justify-between text-sm mb-2">
@@ -1175,11 +1267,31 @@ return (
                     <span>${basePrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span>Customizations ({totalElements}):</span>
+                    <span>Elements ({totalElements}):</span>
+                    <span>${baseCost.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Complexity ({complexity.level}):</span>
+                    <span className={cn(
+                      "font-medium",
+                      complexity.color === 'green' && "text-green-600",
+                      complexity.color === 'yellow' && "text-yellow-600",
+                      complexity.color === 'orange' && "text-orange-600",
+                      complexity.color === 'red' && "text-red-600"
+                    )}>
+                      +{((complexity.multiplier - 1) * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Total Customizations:</span>
                     <span>${customizationCost.toFixed(2)}</span>
                   </div>
                   <div className="border-t pt-2">
-                    <PriceDisplay price={totalPrice} className="text-lg font-semibold" />
+                    <PriceDisplay 
+                      price={totalPrice} 
+                      complexity={complexity}
+                      className="text-lg font-semibold" 
+                    />
                   </div>
                 </div>
               </div>

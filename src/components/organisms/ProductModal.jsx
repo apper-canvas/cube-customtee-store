@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Button from "@/components/atoms/Button";
-import ColorSwatch from "@/components/molecules/ColorSwatch";
+import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
 import SizeSelector from "@/components/molecules/SizeSelector";
 import PriceDisplay from "@/components/molecules/PriceDisplay";
-import ApperIcon from "@/components/ApperIcon";
-import { toast } from "react-toastify";
+import ColorSwatch from "@/components/molecules/ColorSwatch";
+import Button from "@/components/atoms/Button";
+import { cn } from "@/utils/cn";
 
 const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
 const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
@@ -88,6 +89,24 @@ const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
                     alt={`${product.name} in ${selectedColor?.name}`}
                     className="w-full h-full object-cover"
                   />
+                  
+                  {/* Complexity Badge */}
+                  {product.complexityLevel && (
+                    <div className="absolute top-4 right-4 bg-white rounded-lg px-3 py-1 shadow-md">
+                      <div className="flex items-center gap-2">
+                        <div className={cn(
+                          "w-2 h-2 rounded-full",
+                          product.complexityLevel === 'Simple' && "bg-green-500",
+                          product.complexityLevel === 'Moderate' && "bg-yellow-500",
+                          product.complexityLevel === 'Complex' && "bg-orange-500",
+                          product.complexityLevel === 'Very Complex' && "bg-red-500"
+                        )} />
+                        <span className="text-xs font-medium text-gray-700">
+                          {product.complexityLevel}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 {mockupImages.length > 1 && (
                   <div className="flex space-x-2 p-4 overflow-x-auto">
@@ -111,11 +130,20 @@ const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
               </div>
 
               {/* Details Section */}
-              <div className="lg:w-1/2 p-6 space-y-6">
+<div className="lg:w-1/2 p-6 space-y-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
                   <p className="text-secondary mt-1">{product.style}</p>
-                  <PriceDisplay price={product.basePrice} className="mt-3" />
+                  <PriceDisplay 
+                    price={product.basePrice} 
+                    complexity={product.complexityLevel ? {
+                      level: product.complexityLevel,
+                      multiplier: product.complexityLevel === 'Simple' ? 1.0 :
+                                 product.complexityLevel === 'Moderate' ? 1.2 :
+                                 product.complexityLevel === 'Complex' ? 1.5 : 2.0
+                    } : null}
+                    className="mt-3" 
+                  />
                 </div>
 
                 <div className="space-y-4">

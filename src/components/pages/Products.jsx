@@ -122,6 +122,7 @@ const applyFilters = () => {
     }
 
     // Apply complexity level filters
+// Apply complexity level filters
     if (selectedFilters.complexityLevels.length > 0) {
       filtered = filtered.filter(product =>
         selectedFilters.complexityLevels.includes(product.complexityLevel || 'Simple')
