@@ -362,7 +362,173 @@ const handleImageUpload = (event) => {
     };
     reader.readAsDataURL(file);
   };
+// Template quick-add functions
+  const addQuoteElement = () => {
+    const quotes = [
+      "Be Yourself",
+      "Stay Strong",
+      "Dream Big",
+      "Never Give Up",
+      "Make It Happen",
+      "Believe & Achieve"
+    ];
+    
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    
+    const newElement = {
+      id: Date.now() + Math.random(),
+      type: "text",
+      content: randomQuote,
+      font: "Impact",
+      color: "#000000",
+      size: 28,
+      stroke: 1,
+      strokeColor: "#FFFFFF",
+      shadow: 2,
+      shadowColor: "#666666",
+      rotation: 0,
+      opacity: 100,
+      x: 80,
+      y: 120,
+      isDragging: false,
+      visible: true,
+      zIndex: designElements.length
+    };
 
+    // Check if element is in print area
+    if (!isElementInPrintArea(newElement)) {
+      toast.warning("Quote may be outside the printable area. Use Print Preview to check positioning.");
+    }
+
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: [...prev[activeDesignArea], newElement]
+    }));
+    
+    toast.success(`Inspirational quote added to ${activeDesignArea} design`);
+    setTimeout(() => validateDesign(), 100);
+  };
+
+  const addLogoPlaceholder = () => {
+    // Create a simple placeholder "logo" using canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = 120;
+    canvas.height = 120;
+    const ctx = canvas.getContext('2d');
+    
+    // Draw placeholder logo design
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, 120, 120);
+    ctx.strokeStyle = '#cccccc';
+    ctx.setLineDash([5, 5]);
+    ctx.strokeRect(10, 10, 100, 100);
+    
+    // Add "LOGO" text
+    ctx.fillStyle = '#999999';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('LOGO', 60, 65);
+    
+    const placeholderDataUrl = canvas.toDataURL();
+    
+    const newElement = {
+      id: Date.now() + Math.random(),
+      type: "image",
+      content: placeholderDataUrl,
+      x: 90,
+      y: 80,
+      width: 80,
+      height: 80,
+      originalWidth: 120,
+      originalHeight: 120,
+      rotation: 0,
+      opacity: 100,
+      filter: "none",
+      brightness: 100,
+      isDragging: false,
+      visible: true,
+      zIndex: designElements.length,
+      lowResolution: false
+    };
+
+    // Check if element is in print area
+    if (!isElementInPrintArea(newElement)) {
+      toast.warning("Logo placeholder may be outside the printable area. Use Print Preview to check positioning.");
+    }
+
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: [...prev[activeDesignArea], newElement]
+    }));
+    
+    toast.success(`Logo placeholder added to ${activeDesignArea} design`);
+    setTimeout(() => validateDesign(), 100);
+  };
+
+  const addBorderElement = () => {
+    // Add four border elements (top, bottom, left, right)
+    const borderElements = [
+      // Top border
+      {
+        id: Date.now() + Math.random(),
+        type: "text",
+        content: "━━━━━━━━━━━━━━━━━━━━",
+        font: "Arial",
+        color: "#000000",
+        size: 16,
+        stroke: 0,
+        strokeColor: "#000000",
+        shadow: 0,
+        shadowColor: "#000000",
+        rotation: 0,
+        opacity: 100,
+        x: 50,
+        y: 70,
+        isDragging: false,
+        visible: true,
+        zIndex: designElements.length
+      },
+      // Bottom border
+      {
+        id: Date.now() + Math.random() + 0.1,
+        type: "text", 
+        content: "━━━━━━━━━━━━━━━━━━━━",
+        font: "Arial",
+        color: "#000000",
+        size: 16,
+        stroke: 0,
+        strokeColor: "#000000",
+        shadow: 0,
+        shadowColor: "#000000",
+        rotation: 0,
+        opacity: 100,
+        x: 50,
+        y: 300,
+        isDragging: false,
+        visible: true,
+        zIndex: designElements.length + 1
+      }
+    ];
+
+    let elementsInPrintArea = 0;
+    borderElements.forEach(element => {
+      if (isElementInPrintArea(element)) {
+        elementsInPrintArea++;
+      }
+    });
+
+    if (elementsInPrintArea < borderElements.length) {
+      toast.warning("Some border elements may be outside the printable area. Use Print Preview to check positioning.");
+    }
+
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: [...prev[activeDesignArea], ...borderElements]
+    }));
+    
+    toast.success(`Decorative border added to ${activeDesignArea} design`);
+    setTimeout(() => validateDesign(), 100);
+  };
   const handleMouseDown = useCallback((e, element) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setDragOffset({
@@ -1355,8 +1521,41 @@ return (
                     </div>
                   )}
                 </div>
-              </div>
+</div>
 
+              {/* Template Quick-Add Buttons */}
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                  <ApperIcon name="Zap" className="w-4 h-4 mr-2" />
+                  Design Templates
+                </h4>
+                <div className="grid grid-cols-1 gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={addQuoteElement}
+                    className="w-full justify-start text-sm h-9"
+                  >
+                    <ApperIcon name="Quote" className="w-4 h-4 mr-2" />
+                    Add Quote
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={addLogoPlaceholder}
+                    className="w-full justify-start text-sm h-9"
+                  >
+                    <ApperIcon name="Image" className="w-4 h-4 mr-2" />
+                    Add Logo Placeholder
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={addBorderElement}
+                    className="w-full justify-start text-sm h-9"
+                  >
+                    <ApperIcon name="Square" className="w-4 h-4 mr-2" />
+                    Add Border
+                  </Button>
+                </div>
+              </div>
 {/* Price Display */}
               <div className="border-t pt-6">
                 <div className="bg-gray-50 rounded-lg p-4">
