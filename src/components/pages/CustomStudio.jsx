@@ -372,10 +372,11 @@ const saveDesign = () => {
     toast.success("Custom design added to cart!");
   };
 
-  return (
-    <div 
-      className="min-h-screen bg-background py-8"
-      onMouseMove={handleMouseMove}
+return (
+    <>
+      <div 
+        className="min-h-screen bg-background py-8"
+        onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1084,10 +1085,11 @@ const saveDesign = () => {
               </div>
             </div>
           </div>
-        )}
+)}
         </div>
       </div>
     </div>
+    </>
   );
 };
 
