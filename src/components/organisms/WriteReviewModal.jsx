@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
+import { reviewService } from "@/services/api/reviewService";
 import ApperIcon from "@/components/ApperIcon";
+import StarRating from "@/components/molecules/StarRating";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
-import StarRating from "@/components/molecules/StarRating";
-import { reviewService } from "@/services/api/reviewService";
 
 const WriteReviewModal = ({ product, isOpen, onClose, onReviewAdded }) => {
   const [formData, setFormData] = useState({
@@ -18,6 +18,16 @@ const WriteReviewModal = ({ product, isOpen, onClose, onReviewAdded }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoFiles, setPhotoFiles] = useState([]);
 
+  // Move useEffect before any conditional returns to follow Rules of Hooks
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isOpen]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -28,61 +38,93 @@ const WriteReviewModal = ({ product, isOpen, onClose, onReviewAdded }) => {
 
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      // In a real app, you'd upload to a service like AWS S3
-      // For demo, we'll create object URLs
-      const photoUrls = files.map(file => URL.createObjectURL(file));
-      setFormData(prev => ({
-        ...prev,
-        photos: [...prev.photos, ...photoUrls].slice(0, 5) // Max 5 photos
-      }));
-      setPhotoFiles(prev => [...prev, ...files].slice(0, 5));
+    const maxFiles = 5;
+    
+    if (photoFiles.length + files.length > maxFiles) {
+      toast.error(`Maximum ${maxFiles} photos allowed`);
+      return;
+    }
+
+    const validFiles = files.filter(file => {
+      const isValid = file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024;
+      if (!isValid) {
+        toast.error(`Invalid file: ${file.name}. Please upload images under 5MB.`);
+      }
+      return isValid;
+    });
+
+    if (validFiles.length > 0) {
+      setPhotoFiles(prev => [...prev, ...validFiles]);
+      
+      // Create preview URLs
+      validFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setFormData(prev => ({
+            ...prev,
+            photos: [...prev.photos, e.target.result]
+          }));
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
   const removePhoto = (index) => {
+    setPhotoFiles(prev => prev.filter((_, i) => i !== index));
     setFormData(prev => ({
       ...prev,
       photos: prev.photos.filter((_, i) => i !== index)
     }));
-    setPhotoFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.rating || !formData.title || !formData.review || !formData.customerName) {
-      toast.error("Please fill in all required fields");
+    if (formData.rating === 0) {
+      toast.error('Please select a rating');
       return;
     }
 
-    setIsSubmitting(true);
+    if (!formData.title.trim()) {
+      toast.error('Please enter a review title');
+      return;
+    }
+
+    if (!formData.review.trim()) {
+      toast.error('Please write a review');
+      return;
+    }
+
+    if (!formData.customerName.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
 
     try {
+      setIsSubmitting(true);
+
       const reviewData = {
-        productId: product.Id,
-        ...formData
+        productId: product.id,
+        rating: formData.rating,
+        title: formData.title,
+        review: formData.review,
+        customerName: formData.customerName,
+        photos: formData.photos,
+        date: new Date().toISOString(),
+        verified: true,
+        helpful: 0
       };
 
-      const newReview = await reviewService.create(reviewData);
-      
-      toast.success("Review submitted successfully!");
-      onReviewAdded && onReviewAdded(newReview);
-      
-      // Reset form
-      setFormData({
-        rating: 0,
-        title: "",
-        review: "",
-        customerName: "",
-        photos: []
-      });
-      setPhotoFiles([]);
-      
+      await reviewService.submitReview(reviewData);
+
+      toast.success('Review submitted successfully! Thank you for your feedback.');
+      onReviewAdded?.(reviewData);
+      resetForm();
       onClose();
     } catch (error) {
-      console.error("Error submitting review:", error);
-      toast.error("Failed to submit review. Please try again.");
+      console.error('Review submission failed:', error);
+      toast.error('Failed to submit review. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -101,15 +143,7 @@ const WriteReviewModal = ({ product, isOpen, onClose, onReviewAdded }) => {
 
   if (!product) return null;
 
-// Lock body scroll when modal opens
-  React.useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = 'unset';
-      };
-    }
-  }, [isOpen]);
+if (!product) return null;
 
   return (
     <AnimatePresence>
