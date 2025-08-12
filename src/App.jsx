@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import Header from "@/components/organisms/Header";
+import PromotionalBanner from "@/components/molecules/PromotionalBanner";
 import CartDrawer from "@/components/organisms/CartDrawer";
 import Products from "@/components/pages/Products";
 import DesignGallery from "@/components/pages/DesignGallery";
@@ -50,12 +51,13 @@ const App = () => {
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-background">
+<div className="min-h-screen bg-background">
       <Header 
         cartCount={cartCount}
         onCartClick={() => setIsCartOpen(true)}
       />
       
+      <PromotionalBanner />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Products onAddToCart={addToCart} />} />
