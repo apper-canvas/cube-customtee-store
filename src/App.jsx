@@ -10,6 +10,7 @@ import Checkout from "@/components/pages/Checkout";
 import Products from "@/components/pages/Products";
 import CustomStudio from "@/components/pages/CustomStudio";
 import DesignGallery from "@/components/pages/DesignGallery";
+import SavedDesigns from "@/components/pages/SavedDesigns";
 import productsData from "@/services/mockData/products.json";
 import filtersData from "@/services/mockData/filters.json";
 
@@ -102,7 +103,8 @@ const addToCart = async (item, sourceOrderNumber = null) => {
           <Route path="/" element={<Products onAddToCart={addToCart} />} />
           <Route path="/gallery" element={<DesignGallery />} />
           <Route path="/studio" element={<CustomStudio />} />
-<Route path="/orders" element={<Orders onReorder={handleReorder} />} />
+          <Route path="/saved-designs" element={<SavedDesigns />} />
+          <Route path="/orders" element={<Orders onReorder={handleReorder} />} />
           <Route path="/checkout" element={<Checkout cartItems={cartItems} onClearCart={() => setCartItems([])} />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
         </Routes>

@@ -12,6 +12,7 @@ const navigation = [
     { name: "Products", href: "/" },
     { name: "Design Gallery", href: "/gallery" },
     { name: "Custom Studio", href: "/studio" },
+    { name: "Saved Designs", href: "/saved-designs" },
     { name: "Orders", href: "/orders" },
     { name: "Checkout", href: "/checkout" }
   ];
