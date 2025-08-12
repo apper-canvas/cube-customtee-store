@@ -61,19 +61,19 @@ const handleStyleFilter = (style) => {
   };
 
   return (
-    <>
+<>
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-[90]"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 w-80 lg:w-auto",
-        "bg-white lg:bg-transparent lg:backdrop-filter-none",
+        "fixed lg:static inset-y-0 left-0 z-[95] w-80 lg:w-auto",
+        "bg-white lg:bg-transparent lg:backdrop-filter-none shadow-2xl lg:shadow-none",
         "transform lg:transform-none transition-transform duration-300",
         "overflow-y-auto",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"

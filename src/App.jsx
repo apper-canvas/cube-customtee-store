@@ -99,7 +99,7 @@ const addToCart = async (item, sourceOrderNumber = null) => {
       />
       
       <PromotionalBanner />
-<main className="flex-1 pt-16">
+<main className="flex-1 pt-24 pb-8">
 <Routes>
           <Route path="/" element={<Products onAddToCart={addToCart} />} />
           <Route path="/gallery" element={<DesignGallery />} />

@@ -70,6 +70,16 @@ function ReviewIncentiveModal({ isOpen, onClose, orderNumber, onSubmitReview }) 
 
   const discountEligible = photos.length > 0;
 
+// Lock body scroll when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -78,7 +88,7 @@ function ReviewIncentiveModal({ isOpen, onClose, orderNumber, onSubmitReview }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-[120] flex items-center justify-center p-4"
             onClick={onClose}
           >
             <motion.div

@@ -252,9 +252,9 @@ const handleProductClick = (product) => {
           />
         )}
 
-        {/* Main Content */}
-        <div className="flex-1 min-w-0">
-<ProductGrid
+{/* Main Content */}
+        <div className="flex-1 min-w-0 relative">
+          <ProductGrid
             products={filteredProducts}
             loading={loading}
             error={error}
