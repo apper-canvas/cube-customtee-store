@@ -131,11 +131,11 @@ const handleSubmit = async (e) => {
         total
       };
 
-      const order = await checkoutService.createOrder(orderData);
+const order = await checkoutService.createOrder(orderData);
       
       toast.success(`Order ${order.orderNumber} placed successfully!`);
       onClearCart();
-      navigate('/orders');
+      navigate('/order-confirmation', { state: { order } });
     } catch (error) {
       toast.error('Failed to place order. Please try again.');
     } finally {

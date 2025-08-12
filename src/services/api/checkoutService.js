@@ -20,7 +20,7 @@ async createOrder(orderData) {
       }
     }
     
-    const newOrder = {
+const newOrder = {
       Id: orderId++,
       ...orderData,
       // Don't store sensitive payment data
@@ -31,10 +31,14 @@ async createOrder(orderData) {
       orderNumber: `ORD-${String(orderId + 1000).padStart(4, '0')}`,
       status: 'confirmed',
       createdAt: new Date().toISOString(),
-      estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      // Include calculated totals for confirmation display
+      subtotal: orderData.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0,
+      tax: orderData.tax || 0,
+      total: orderData.total || 0
     };
     
-    orders.push(newOrder);
+orders.push(newOrder);
     return { ...newOrder };
   },
   
