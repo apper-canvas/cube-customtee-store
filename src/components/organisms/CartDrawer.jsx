@@ -6,10 +6,10 @@ import Empty from "@/components/ui/Empty";
 import { toast } from "react-toastify";
 
 const CartDrawer = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }) => {
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shipping = subtotal > 50 ? 0 : 5.99;
   const tax = subtotal * 0.08;
-  const total = subtotal + tax;
-
+  const total = subtotal + shipping + tax;
   const handleCheckout = () => {
     toast.info("Checkout functionality coming soon!");
   };
@@ -58,24 +58,31 @@ const CartDrawer = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
               {cartItems.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center">
+<div className="flex-1 flex items-center justify-center">
                   <Empty
                     title="Your cart is empty"
-                    description="Add some awesome custom tees to get started!"
-                    actionLabel="Browse Products"
+                    description="Your cart is empty - start designing!"
+                    actionLabel="Continue Shopping"
                     onAction={onClose}
                   />
                 </div>
               ) : (
                 <div className="p-6 space-y-4">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="bg-gray-50 rounded-xl p-4">
+<div key={item.id} className="bg-gray-50 rounded-xl p-4">
                       <div className="flex space-x-4">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-16 h-16 object-cover rounded-lg"
-                        />
+                        <div className="relative">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-20 h-20 object-cover rounded-lg"
+                          />
+                          {item.customDesign && (
+                            <div className="absolute inset-0 bg-black bg-opacity-20 rounded-lg flex items-center justify-center">
+                              <ApperIcon name="Palette" className="w-6 h-6 text-white" />
+                            </div>
+                          )}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
                           <p className="text-sm text-secondary">{item.style}</p>
@@ -88,9 +95,35 @@ const CartDrawer = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem
                             <span className="text-sm text-secondary">•</span>
                             <span className="text-sm text-secondary">{item.size}</span>
                           </div>
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center space-x-2">
+                              <button
+                                onClick={() => handleUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                                className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                              >
+                                <ApperIcon name="Minus" className="w-4 h-4" />
+                              </button>
+                              <span className="w-8 text-center font-medium">{item.quantity}</span>
+                              <button
+                                onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                              >
+                                <ApperIcon name="Plus" className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</div>
+                              <div className="text-sm text-secondary">${item.price.toFixed(2)} each</div>
+                            </div>
+                          </div>
                         </div>
+                        <button
+                          onClick={() => onRemoveItem(item.id)}
+                          className="self-start p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <ApperIcon name="Trash2" className="w-4 h-4" />
+                        </button>
                       </div>
-
                       <div className="flex items-center justify-between mt-4">
                         <div className="flex items-center space-x-2">
                           <button
@@ -132,14 +165,20 @@ const CartDrawer = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem
 
             {/* Footer */}
             {cartItems.length > 0 && (
-              <div className="border-t border-gray-100 p-6 bg-white">
+<div className="border-t border-gray-100 p-6 bg-white">
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-secondary">Subtotal</span>
                     <span className="text-gray-900">${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-secondary">Tax</span>
+                    <span className="text-secondary">Shipping</span>
+                    <span className="text-gray-900">
+                      {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-secondary">Tax (8%)</span>
                     <span className="text-gray-900">${tax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-gray-100 pt-2">
@@ -148,11 +187,27 @@ const CartDrawer = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem
                       <span>${total.toFixed(2)}</span>
                     </div>
                   </div>
+                  {subtotal > 0 && subtotal < 50 && (
+                    <div className="text-xs text-secondary mt-2">
+                      Add ${(50 - subtotal).toFixed(2)} more for free shipping!
+                    </div>
+                  )}
                 </div>
-                <Button onClick={handleCheckout} className="w-full" size="lg">
-                  <ApperIcon name="CreditCard" className="w-5 h-5 mr-2" />
-                  Checkout
-                </Button>
+                <div className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={onClose} 
+                    className="w-full"
+                    size="lg"
+                  >
+                    <ApperIcon name="ArrowLeft" className="w-5 h-5 mr-2" />
+                    Continue Shopping
+                  </Button>
+                  <Button onClick={handleCheckout} className="w-full" size="lg">
+                    <ApperIcon name="CreditCard" className="w-5 h-5 mr-2" />
+                    Checkout • ${total.toFixed(2)}
+                  </Button>
+                </div>
               </div>
             )}
           </motion.div>
