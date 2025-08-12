@@ -113,7 +113,16 @@ const [templateName, setTemplateName] = useState(null);
   const [shareLink, setShareLink] = useState('');
   const [isGeneratingShare, setIsGeneratingShare] = useState(false);
   // Get current design elements
-  const designElements = designAreas[activeDesignArea];
+const designElements = designAreas[activeDesignArea];
+  
+  // Alignment and grid state
+  const [snapToGrid, setSnapToGrid] = useState(false);
+  const [gridSize, setGridSize] = useState(10);
+  const [showGrid, setShowGrid] = useState(false);
+  const [selectedElements, setSelectedElements] = useState([]);
+  const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
+  const [minElementSize, setMinElementSize] = useState(20);
+  const [maxElementSize, setMaxElementSize] = useState(200);
 
   // Load template data from URL params
 // Load saved designs from localStorage
@@ -550,9 +559,15 @@ setDraggedElement(element.id);
 const handleMouseMove = useCallback((e) => {
     if (!draggedElement) return;
 
-    const mockupRect = document.querySelector('.t-shirt-mockup').getBoundingClientRect();
-    const x = e.clientX - mockupRect.left - dragOffset.x;
-    const y = e.clientY - mockupRect.top - dragOffset.y;
+const mockupRect = document.querySelector('.t-shirt-mockup').getBoundingClientRect();
+    let x = e.clientX - mockupRect.left - dragOffset.x;
+    let y = e.clientY - mockupRect.top - dragOffset.y;
+
+    // Apply snap-to-grid
+    if (snapToGrid) {
+      x = Math.round(x / gridSize) * gridSize;
+      y = Math.round(y / gridSize) * gridSize;
+    }
 
     setDesignAreas(prev => ({
       ...prev,
@@ -628,7 +643,23 @@ setDesignAreas(prev => ({
       ...prev,
       [activeDesignArea]: prev[activeDesignArea].map(el => {
         if (el.id === id) {
-          const updatedElement = { ...el, [property]: value };
+let updatedElement = { ...el, [property]: value };
+          
+          // Apply size constraints
+          if ((property === 'width' || property === 'height') && updatedElement.type === 'image') {
+            let newValue = Math.max(minElementSize, Math.min(value, maxElementSize));
+            
+            if (maintainAspectRatio && updatedElement.originalWidth && updatedElement.originalHeight) {
+              const aspectRatio = updatedElement.originalWidth / updatedElement.originalHeight;
+              if (property === 'width') {
+                updatedElement = { ...updatedElement, width: newValue, height: newValue / aspectRatio };
+              } else if (property === 'height') {
+                updatedElement = { ...updatedElement, height: newValue, width: newValue * aspectRatio };
+              }
+            } else {
+              updatedElement = { ...updatedElement, [property]: newValue };
+            }
+          }
           
           // Validate text size changes
           if (property === 'size' && updatedElement.type === 'text' && value < MIN_TEXT_SIZE) {
@@ -645,6 +676,123 @@ setDesignAreas(prev => ({
     setTimeout(() => validateDesign(), 100);
   };
 
+  // Alignment helper functions
+  const centerElementsHorizontally = () => {
+    if (selectedElements.length === 0) {
+      toast.warning("Please select elements to align");
+      return;
+    }
+    
+    const centerX = 150; // Center of mockup
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: prev[activeDesignArea].map(el => 
+        selectedElements.includes(el.id) ? { ...el, x: centerX } : el
+      )
+    }));
+    toast.success(`${selectedElements.length} element(s) centered horizontally`);
+  };
+
+  const centerElementsVertically = () => {
+    if (selectedElements.length === 0) {
+      toast.warning("Please select elements to align");
+      return;
+    }
+    
+    const centerY = 150; // Center of mockup
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: prev[activeDesignArea].map(el => 
+        selectedElements.includes(el.id) ? { ...el, y: centerY } : el
+      )
+    }));
+    toast.success(`${selectedElements.length} element(s) centered vertically`);
+  };
+
+  const alignElementsToFirst = (direction) => {
+    if (selectedElements.length < 2) {
+      toast.warning("Please select at least 2 elements to align");
+      return;
+    }
+    
+    const firstElement = designElements.find(el => el.id === selectedElements[0]);
+    if (!firstElement) return;
+    
+    const alignValue = direction === 'horizontal' ? firstElement.x : firstElement.y;
+    const property = direction === 'horizontal' ? 'x' : 'y';
+    
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: prev[activeDesignArea].map(el => 
+        selectedElements.includes(el.id) && el.id !== firstElement.id 
+          ? { ...el, [property]: alignValue } 
+          : el
+      )
+    }));
+    toast.success(`Elements aligned ${direction}ly to first selected element`);
+  };
+
+  const distributeElementsEvenly = (direction) => {
+    if (selectedElements.length < 3) {
+      toast.warning("Please select at least 3 elements to distribute");
+      return;
+    }
+    
+    const elements = designElements.filter(el => selectedElements.includes(el.id));
+    const property = direction === 'horizontal' ? 'x' : 'y';
+    const sortedElements = [...elements].sort((a, b) => a[property] - b[property]);
+    
+    const first = sortedElements[0][property];
+    const last = sortedElements[sortedElements.length - 1][property];
+    const spacing = (last - first) / (sortedElements.length - 1);
+    
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: prev[activeDesignArea].map(el => {
+        const index = sortedElements.findIndex(sorted => sorted.id === el.id);
+        return index !== -1 
+          ? { ...el, [property]: first + (index * spacing) }
+          : el;
+      })
+    }));
+    toast.success(`Elements distributed evenly ${direction === 'horizontal' ? 'horizontally' : 'vertically'}`);
+  };
+
+  const adjustMarginFromEdges = (side, margin) => {
+    if (selectedElements.length === 0) {
+      toast.warning("Please select elements to adjust margins");
+      return;
+    }
+    
+    const mockupWidth = 300;
+    const mockupHeight = 400;
+    
+    setDesignAreas(prev => ({
+      ...prev,
+      [activeDesignArea]: prev[activeDesignArea].map(el => {
+        if (!selectedElements.includes(el.id)) return el;
+        
+        let updates = {};
+        switch (side) {
+          case 'left':
+            updates.x = margin;
+            break;
+          case 'right':
+            updates.x = mockupWidth - margin - (el.width || 100);
+            break;
+          case 'top':
+            updates.y = margin;
+            break;
+          case 'bottom':
+            updates.y = mockupHeight - margin - (el.type === 'text' ? el.size || 20 : el.height || 100);
+            break;
+        }
+        return { ...el, ...updates };
+      })
+    }));
+    toast.success(`Adjusted margin from ${side} edge`);
+  };
+
 
 
 const clearAllElements = () => {
@@ -657,11 +805,25 @@ const clearAllElements = () => {
 
   const clearAllAreas = () => {
     setDesignAreas({
-      Front: [],
+Front: [],
       Back: [],
       Sleeve: []
     });
     toast.info("All design areas cleared");
+  };
+
+  const toggleElementSelection = (elementId) => {
+    setSelectedElements(prev => {
+      if (prev.includes(elementId)) {
+        return prev.filter(id => id !== elementId);
+      } else {
+        return [...prev, elementId];
+      }
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedElements([]);
   };
 
 const saveDesign = () => {
@@ -723,9 +885,8 @@ const saveDesign = () => {
     existingCart.push(cartItem);
     localStorage.setItem('customCart', JSON.stringify(existingCart));
     
-toast.success("Custom design added to cart!");
+    toast.success("Custom design added to cart!");
   };
-
   const exportDesign = async () => {
     try {
       const canvas = document.createElement('canvas');
@@ -1213,6 +1374,230 @@ return (
               </div>
 
               {/* Style Selector */}
+{/* Snap to Grid & Alignment Tools */}
+              <div className="border-t pt-6">
+                <h3 className="font-medium mb-4 flex items-center">
+                  <ApperIcon name="Grid3x3" className="w-4 h-4 mr-2" />
+                  Precision Tools
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Grid Controls */}
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-3">
+                    <h4 className="text-xs font-semibold text-gray-700">Snap to Grid</h4>
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={snapToGrid}
+                          onChange={(e) => setSnapToGrid(e.target.checked)}
+                          className="mr-2"
+                        />
+                        <span className="text-sm">Enable Snap</span>
+                      </label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowGrid(!showGrid)}
+                        className="text-xs px-2 py-1"
+                      >
+                        {showGrid ? 'Hide' : 'Show'} Grid
+                      </Button>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Grid Size: {gridSize}px</label>
+                      <input
+                        type="range"
+                        min="5"
+                        max="20"
+                        value={gridSize}
+                        onChange={(e) => setGridSize(parseInt(e.target.value))}
+                        className="w-full"
+                        disabled={!snapToGrid}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Element Selection */}
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-semibold text-blue-800">
+                        Selected: {selectedElements.length} element(s)
+                      </h4>
+                      {selectedElements.length > 0 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={clearSelection}
+                          className="text-xs px-2 py-1"
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-xs text-blue-600">
+                      Shift+click elements in the workspace to select multiple for alignment
+                    </p>
+                  </div>
+
+                  {/* Alignment Controls */}
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-3">
+                    <h4 className="text-xs font-semibold text-gray-700">Alignment Tools</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={centerElementsHorizontally}
+                        className="text-xs"
+                        disabled={selectedElements.length === 0}
+                      >
+                        <ApperIcon name="AlignCenter" className="w-3 h-3 mr-1" />
+                        H-Center
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={centerElementsVertically}
+                        className="text-xs"
+                        disabled={selectedElements.length === 0}
+                      >
+                        <ApperIcon name="AlignCenter" className="w-3 h-3 mr-1" />
+                        V-Center
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => alignElementsToFirst('horizontal')}
+                        className="text-xs"
+                        disabled={selectedElements.length < 2}
+                      >
+                        <ApperIcon name="AlignLeft" className="w-3 h-3 mr-1" />
+                        H-Align
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => alignElementsToFirst('vertical')}
+                        className="text-xs"
+                        disabled={selectedElements.length < 2}
+                      >
+                        <ApperIcon name="AlignTop" className="w-3 h-3 mr-1" />
+                        V-Align
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Spacing Controls */}
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-3">
+                    <h4 className="text-xs font-semibold text-gray-700">Spacing Controls</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => distributeElementsEvenly('horizontal')}
+                        className="text-xs"
+                        disabled={selectedElements.length < 3}
+                      >
+                        <ApperIcon name="DistributeHorizontal" className="w-3 h-3 mr-1" />
+                        H-Distribute
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => distributeElementsEvenly('vertical')}
+                        className="text-xs"
+                        disabled={selectedElements.length < 3}
+                      >
+                        <ApperIcon name="DistributeVertical" className="w-3 h-3 mr-1" />
+                        V-Distribute
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => adjustMarginFromEdges('left', 20)}
+                        className="text-xs p-1"
+                        disabled={selectedElements.length === 0}
+                        title="Align to left edge"
+                      >
+                        ←
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => adjustMarginFromEdges('top', 20)}
+                        className="text-xs p-1"
+                        disabled={selectedElements.length === 0}
+                        title="Align to top edge"
+                      >
+                        ↑
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => adjustMarginFromEdges('bottom', 20)}
+                        className="text-xs p-1"
+                        disabled={selectedElements.length === 0}
+                        title="Align to bottom edge"
+                      >
+                        ↓
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => adjustMarginFromEdges('right', 20)}
+                        className="text-xs p-1"
+                        disabled={selectedElements.length === 0}
+                        title="Align to right edge"
+                      >
+                        →
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Size Constraints */}
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-3">
+                    <h4 className="text-xs font-semibold text-gray-700">Size Constraints</h4>
+                    <label className="flex items-center text-sm">
+                      <input
+                        type="checkbox"
+                        checked={maintainAspectRatio}
+                        onChange={(e) => setMaintainAspectRatio(e.target.checked)}
+                        className="mr-2"
+                      />
+                      Maintain Aspect Ratio
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Min Size: {minElementSize}px</label>
+                        <input
+                          type="range"
+                          min="10"
+                          max="50"
+                          value={minElementSize}
+                          onChange={(e) => setMinElementSize(parseInt(e.target.value))}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Max Size: {maxElementSize}px</label>
+                        <input
+                          type="range"
+                          min="100"
+                          max="300"
+                          value={maxElementSize}
+                          onChange={(e) => setMaxElementSize(parseInt(e.target.value))}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   T-Shirt Style
@@ -1488,7 +1873,7 @@ return (
                             className="w-full"
                           />
                         </div>
-                      </div>
+</div>
 
                       <div>
                         <label className="block text-xs text-gray-600 mb-1">Filter</label>
