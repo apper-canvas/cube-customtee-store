@@ -268,9 +268,8 @@ return (
                   <div>
                     <h3 className="text-lg font-display font-semibold text-gray-900 mb-4">
                       Order Timeline
-                    </h3>
+</h3>
                     <div className="relative">
-<div className="relative">
                       {getTimelineSteps().map((step, index) => {
                         const status = getStepStatus(step.key);
                         const timestamp = getStepTimestamp(step.key);
@@ -316,8 +315,9 @@ return (
                               )}
                             </div>
                           </div>
-                        );
+);
                       })}
+                    </div>
                   </div>
 
                   {/* Tracking Information */}
