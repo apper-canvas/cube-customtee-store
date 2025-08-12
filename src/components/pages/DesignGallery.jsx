@@ -14,6 +14,8 @@ const mockTemplates = [
     category: "Popular",
     image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop",
     likes: 1247,
+    isTrending: true,
+    weeklyGrowth: 23,
     tags: ["motivation", "sports", "nike"],
     designElements: [
       {
@@ -46,6 +48,8 @@ const mockTemplates = [
     category: "Popular",
     image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=400&fit=crop",
     likes: 892,
+    isTrending: false,
+    weeklyGrowth: 8,
     tags: ["coffee", "morning", "funny"],
     designElements: [
       {
@@ -78,6 +82,8 @@ const mockTemplates = [
     category: "Sports",
     image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
     likes: 634,
+    isTrending: false,
+    weeklyGrowth: 12,
     tags: ["soccer", "football", "championship"],
     designElements: [
       {
@@ -121,6 +127,8 @@ const mockTemplates = [
     category: "Funny",
     image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400&h=400&fit=crop",
     likes: 1156,
+    isTrending: true,
+    weeklyGrowth: 31,
     tags: ["humor", "sarcasm", "funny"],
     designElements: [
       {
@@ -164,6 +172,8 @@ const mockTemplates = [
     category: "Business",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
     likes: 543,
+    isTrending: false,
+    weeklyGrowth: 5,
     tags: ["business", "entrepreneur", "success"],
     designElements: [
       {
@@ -196,6 +206,8 @@ const mockTemplates = [
     category: "Quotes",
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
     likes: 778,
+    isTrending: false,
+    weeklyGrowth: 15,
     tags: ["inspiration", "dreams", "motivation"],
     designElements: [
       {
@@ -228,6 +240,8 @@ const mockTemplates = [
     category: "Graphics",
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
     likes: 445,
+    isTrending: false,
+    weeklyGrowth: 7,
     tags: ["abstract", "geometric", "modern"],
     designElements: [
       {
@@ -271,6 +285,8 @@ const mockTemplates = [
     category: "Seasonal",
     image: "https://images.unsplash.com/photo-1509557965043-6e4b7e6b6b7b?w=400&h=400&fit=crop",
     likes: 321,
+    isTrending: false,
+    weeklyGrowth: 3,
     tags: ["halloween", "spooky", "october"],
     designElements: [
       {
@@ -314,6 +330,8 @@ const mockTemplates = [
     category: "Sports",
     image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&h=400&fit=crop",
     likes: 567,
+    isTrending: false,
+    weeklyGrowth: 9,
     tags: ["basketball", "sports", "legend"],
     designElements: [
       {
@@ -346,6 +364,8 @@ const mockTemplates = [
     category: "Funny",
     image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop",
     likes: 923,
+    isTrending: true,
+    weeklyGrowth: 27,
     tags: ["pizza", "food", "funny"],
     designElements: [
       {
@@ -389,6 +409,8 @@ const mockTemplates = [
     category: "Business",
     image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop",
     likes: 412,
+    isTrending: false,
+    weeklyGrowth: 4,
     tags: ["success", "mindset", "business"],
     designElements: [
       {
@@ -421,6 +443,8 @@ const mockTemplates = [
     category: "Quotes",
     image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop",
     likes: 689,
+    isTrending: false,
+    weeklyGrowth: 11,
     tags: ["kindness", "positive", "quotes"],
     designElements: [
       {
@@ -464,6 +488,8 @@ const mockTemplates = [
     category: "Popular",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=400&fit=crop",
     likes: 1089,
+    isTrending: true,
+    weeklyGrowth: 19,
     tags: ["motivation", "work", "balance"],
     designElements: [
       {
@@ -496,6 +522,8 @@ const mockTemplates = [
     category: "Business",
     image: "https://images.unsplash.com/photo-1486312338219-ce68e2c6b013?w=400&h=400&fit=crop",
     likes: 234,
+    isTrending: false,
+    weeklyGrowth: 2,
     tags: ["corporate", "professional", "excellence"],
     designElements: [
       {
@@ -539,6 +567,8 @@ const mockTemplates = [
     category: "Funny",
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
     likes: 756,
+    isTrending: false,
+    weeklyGrowth: 14,
     tags: ["weekend", "warrior", "funny"],
     designElements: [
       {
@@ -582,6 +612,8 @@ const mockTemplates = [
     category: "Quotes",
     image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400&h=400&fit=crop",
     likes: 1234,
+    isTrending: true,
+    weeklyGrowth: 25,
     tags: ["motivation", "perseverance", "never give up"],
     designElements: [
       {
@@ -614,6 +646,8 @@ const mockTemplates = [
     category: "Business",
     image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=400&fit=crop",
     likes: 445,
+    isTrending: false,
+    weeklyGrowth: 6,
     tags: ["tech", "startup", "innovation"],
     designElements: [
       {
@@ -657,6 +691,8 @@ const mockTemplates = [
     category: "Seasonal",
     image: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&h=400&fit=crop",
     likes: 567,
+    isTrending: false,
+    weeklyGrowth: 10,
     tags: ["christmas", "holiday", "joy"],
     designElements: [
       {
@@ -700,6 +736,8 @@ const mockTemplates = [
     category: "Graphics",
     image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=400&fit=crop",
     likes: 823,
+    isTrending: false,
+    weeklyGrowth: 16,
     tags: ["gaming", "legend", "esports"],
     designElements: [
       {
@@ -743,6 +781,8 @@ const mockTemplates = [
     category: "Funny",
     image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=400&fit=crop",
     likes: 945,
+    isTrending: false,
+    weeklyGrowth: 18,
     tags: ["dog", "mom", "pet"],
     designElements: [
       {
@@ -803,13 +843,28 @@ const TemplateCard = ({ template, onCustomize, onLike, isLiked }) => (
         </button>
       </div>
     </div>
-    
-    <div className="p-4 space-y-3">
-      <div>
+<div className="p-4 space-y-3">
+      <div className="relative">
+        {template.isTrending && (
+          <div className="absolute -top-2 -right-2 z-10">
+            <div className="flex items-center space-x-1 bg-gradient-to-r from-orange-400 to-red-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+              <ApperIcon name="TrendingUp" size={12} />
+              <span>TRENDING</span>
+            </div>
+          </div>
+        )}
         <h3 className="font-semibold text-gray-900 text-lg line-clamp-1">{template.name}</h3>
-        <div className="flex items-center space-x-2 text-sm text-secondary">
-          <ApperIcon name="Heart" size={14} />
-          <span>{template.likes.toLocaleString()}</span>
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center space-x-2 text-secondary">
+            <ApperIcon name="Heart" size={14} />
+            <span className="font-medium">{template.likes.toLocaleString()}</span>
+          </div>
+          {template.weeklyGrowth > 15 && (
+            <div className="flex items-center space-x-1 text-green-600 bg-green-50 px-2 py-1 rounded-full">
+              <ApperIcon name="ArrowUp" size={10} />
+              <span className="text-xs font-medium">+{template.weeklyGrowth}% this week</span>
+            </div>
+          )}
         </div>
       </div>
       

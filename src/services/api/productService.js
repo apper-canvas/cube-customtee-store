@@ -152,7 +152,7 @@ localStorage.setItem('designShares', JSON.stringify(shares));
     return { ...shares[shareIndex] };
   },
 
-  // Get product with review stats
+// Get product with review stats
   async getByIdWithReviews(id) {
     await delay(200);
     const product = productData.find(p => p.Id === id);
@@ -160,13 +160,16 @@ localStorage.setItem('designShares', JSON.stringify(shares));
       throw new Error("Product not found");
     }
 
-    // Import review service dynamically to avoid circular dependency
+    // Import services dynamically to avoid circular dependency
     const { reviewService } = await import("@/services/api/reviewService");
+    const { socialProofService } = await import("@/services/api/socialProofService");
     const reviewStats = reviewService.getReviewStats(id);
+    const socialProofData = socialProofService.getProductSocialProof(id);
 
     return { 
       ...product,
-reviewStats
+      reviewStats,
+      socialProofData
     };
   }
 };

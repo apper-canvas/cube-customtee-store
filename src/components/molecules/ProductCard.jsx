@@ -4,18 +4,22 @@ import ColorSwatch from "@/components/molecules/ColorSwatch";
 import PriceDisplay from "@/components/molecules/PriceDisplay";
 import StarRating from "@/components/molecules/StarRating";
 import { reviewService } from "@/services/api/reviewService";
+import { socialProofService } from "@/services/api/socialProofService";
 const ProductCard = ({ product, onClick }) => {
-  const [isHovered, setIsHovered] = useState(false);
+const [isHovered, setIsHovered] = useState(false);
   const [reviewStats, setReviewStats] = useState(null);
+  const [socialProofData, setSocialProofData] = useState(null);
   
-  useEffect(() => {
-    // Load review stats for the product
-    const loadReviewStats = () => {
+useEffect(() => {
+    // Load review stats and social proof data for the product
+    const loadProductData = () => {
       const stats = reviewService.getReviewStats(product.Id);
+      const socialProof = socialProofService.getProductSocialProof(product.Id);
       setReviewStats(stats);
+      setSocialProofData(socialProof);
     };
     
-    loadReviewStats();
+    loadProductData();
   }, [product.Id]);
 
   const handleCustomizeClick = (e) => {
@@ -78,6 +82,18 @@ const ProductCard = ({ product, onClick }) => {
         <div>
           <h3 className="font-semibold text-gray-900 text-lg">{product.name}</h3>
           <p className="text-sm text-secondary">{product.style}</p>
+          
+          {/* Social Proof Counter */}
+          {socialProofData && (
+            <div className="flex items-center space-x-1 mt-1">
+              <div className="flex items-center space-x-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="font-medium">
+                  {socialProofData.dailyDesigns} customers designed this style today
+                </span>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="flex items-center justify-between">
@@ -91,7 +107,6 @@ const ProductCard = ({ product, onClick }) => {
             </div>
           )}
         </div>
-        
         <div className="flex space-x-2">
           {product.colors.slice(0, 4).map((color, index) => (
             <ColorSwatch

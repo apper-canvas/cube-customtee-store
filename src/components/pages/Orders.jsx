@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react'
+import CustomerPhotoGallery from '@/components/molecules/CustomerPhotoGallery'
 import OrderDetailModal from "@/components/organisms/OrderDetailModal";
 import ApperIcon from "@/components/ApperIcon";
 import Loading from "@/components/ui/Loading";

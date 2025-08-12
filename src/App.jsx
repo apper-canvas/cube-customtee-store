@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState } from 'react'
+import SocialProofNotifications from '@/components/molecules/SocialProofNotifications'
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import Header from "@/components/organisms/Header";

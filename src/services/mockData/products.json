@@ -4,6 +4,13 @@
     "name": "Premium Cotton Crew",
     "style": "Crew Neck",
     "basePrice": 24.99,
+    "socialProof": {
+      "dailyDesigns": 43,
+      "weeklyDesigns": 287,
+      "monthlyDesigns": 1204,
+      "isTrending": true,
+      "lastOrderTime": "2024-01-15T14:32:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -29,6 +36,13 @@
     "name": "Classic V-Neck Tee",
     "style": "V-Neck",
     "basePrice": 22.99,
+    "socialProof": {
+      "dailyDesigns": 31,
+      "weeklyDesigns": 198,
+      "monthlyDesigns": 892,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T13:18:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1562157873-818bc0726f68?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -54,6 +68,13 @@
     "name": "Athletic Tank Top",
     "style": "Tank Top",
     "basePrice": 19.99,
+    "socialProof": {
+      "dailyDesigns": 28,
+      "weeklyDesigns": 165,
+      "monthlyDesigns": 634,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T12:45:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -79,6 +100,13 @@
     "name": "Long Sleeve Essential",
     "style": "Long Sleeve",
     "basePrice": 28.99,
+    "socialProof": {
+      "dailyDesigns": 22,
+      "weeklyDesigns": 134,
+      "monthlyDesigns": 523,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T11:23:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1583743814966-8936f37f86cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -104,6 +132,13 @@
     "name": "Vintage Crew Neck",
     "style": "Crew Neck",
     "basePrice": 26.99,
+    "socialProof": {
+      "dailyDesigns": 37,
+      "weeklyDesigns": 243,
+      "monthlyDesigns": 978,
+      "isTrending": true,
+      "lastOrderTime": "2024-01-15T10:56:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -129,6 +164,13 @@
     "name": "Soft V-Neck Premium",
     "style": "V-Neck",
     "basePrice": 25.99,
+    "socialProof": {
+      "dailyDesigns": 19,
+      "weeklyDesigns": 124,
+      "monthlyDesigns": 445,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T09:34:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1622470953794-aa9c70b0fb9d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -154,6 +196,13 @@
     "name": "Performance Tank",
     "style": "Tank Top",
     "basePrice": 21.99,
+    "socialProof": {
+      "dailyDesigns": 34,
+      "weeklyDesigns": 201,
+      "monthlyDesigns": 756,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T08:47:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -179,6 +228,13 @@
     "name": "Cozy Long Sleeve",
     "style": "Long Sleeve",
     "basePrice": 31.99,
+    "socialProof": {
+      "dailyDesigns": 16,
+      "weeklyDesigns": 89,
+      "monthlyDesigns": 321,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T07:15:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1583743814966-8936f37f86cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -204,6 +260,13 @@
     "name": "Organic Cotton Crew",
     "style": "Crew Neck",
     "basePrice": 29.99,
+    "socialProof": {
+      "dailyDesigns": 26,
+      "weeklyDesigns": 156,
+      "monthlyDesigns": 567,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T06:42:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -229,6 +292,13 @@
     "name": "Fitted V-Neck",
     "style": "V-Neck",
     "basePrice": 23.99,
+    "socialProof": {
+      "dailyDesigns": 41,
+      "weeklyDesigns": 267,
+      "monthlyDesigns": 1089,
+      "isTrending": true,
+      "lastOrderTime": "2024-01-15T05:28:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1622470953794-aa9c70b0fb9d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -254,6 +324,13 @@
     "name": "Muscle Tank",
     "style": "Tank Top",
     "basePrice": 18.99,
+    "socialProof": {
+      "dailyDesigns": 18,
+      "weeklyDesigns": 112,
+      "monthlyDesigns": 412,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T04:51:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -279,6 +356,13 @@
     "name": "Raglan Long Sleeve",
     "style": "Long Sleeve",
     "basePrice": 27.99,
+    "socialProof": {
+      "dailyDesigns": 29,
+      "weeklyDesigns": 178,
+      "monthlyDesigns": 689,
+      "isTrending": false,
+      "lastOrderTime": "2024-01-15T03:37:00Z"
+    },
     "images": [
       "https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1583743814966-8936f37f86cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
