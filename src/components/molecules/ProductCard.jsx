@@ -6,10 +6,10 @@ import PriceDisplay from "@/components/molecules/PriceDisplay";
 const ProductCard = ({ product, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  const handleCustomizeClick = (e) => {
+const handleCustomizeClick = (e) => {
     e.stopPropagation();
-    // Placeholder for customize functionality
-    alert("Design Studio loading...");
+    // Navigate to Custom Studio with product
+    window.location.href = '/custom-studio';
   };
 
   return (
